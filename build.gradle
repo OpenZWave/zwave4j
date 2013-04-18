@@ -1,0 +1,81 @@
+apply plugin: 'maven'
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'idea'
+apply plugin: 'cpp-lib'
+
+group = 'org.zwave4j'
+version = '0.1'
+mainClassName = 'org.zwave4j.Main'
+
+ext {
+    javaHome = System.getenv('JAVA_HOME')
+    openZwaveDir = "D:/private/projects/_3rd party/open-zwave"
+    openZwaveLibFile = "${openZwaveDir}/cpp/lib/windows-mingw32/openzwave.a"
+    architecture = "amd64"//"x86"
+    nativeClasses = ['org.zwave4j.Manager', 'org.zwave4j.Options']
+    nativeLibsDir = 'native-libs'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+libraries {
+	main {
+        spec {
+            includes(files("${javaHome}/include"))
+            includes(files("${javaHome}/include/win32"))
+            includes(files("${openZwaveDir}/cpp/src"))
+            includes(files("${openZwaveDir}/cpp/src/value_classes"))
+            includes(files("${openZwaveDir}/cpp/src/command_classes"))
+            includes(files("${openZwaveDir}/cpp/src/platform"))
+            includes(files("${openZwaveDir}/cpp/src/platform/unix"))
+            includes(files("${openZwaveDir}/cpp/src/platform/windows"))
+            args openZwaveLibFile
+            args "-lsetupapi"
+            args (architecture == "amd64" ? "-m64" : (architecture == "x86" ? "-m32" : ""))
+        }
+    }
+}
+
+run {
+    standardInput = System.in
+    jvmArgs = [
+            "-Xdebug",
+            "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005",
+            "-Djava.library.path=\"${buildDir}/${nativeLibsDir}\""
+    ]
+}
+
+task generateNativeHeaders(type: Exec, dependsOn: classes) {
+    commandLine 'javah'
+    args '-d', 'src/main/headers'
+    args '-classpath', sourceSets.main.runtimeClasspath.asPath
+    args nativeClasses
+}
+
+compileMain.dependsOn generateNativeHeaders
+
+task copyNativeLibs(type: Copy, dependsOn: compileMain) {
+    from "${buildDir}/binaries"
+    into "${buildDir}/${nativeLibsDir}/windows/${architecture}"
+}
+
+run.dependsOn copyNativeLibs
+
+task nativeLibsZip(type: Zip, dependsOn: copyNativeLibs) {
+    from "${buildDir}/${nativeLibsDir}"
+    classifier = 'native'
+}
+
+task srcJar(type: Jar) {
+    from "src/main/java"
+    classifier = 'sources'
+}
+
+artifacts {
+    archives nativeLibsZip
+    archives srcJar
+}
