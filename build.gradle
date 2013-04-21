@@ -65,6 +65,13 @@ task copyNativeLibs(type: Copy, dependsOn: compileMain) {
 
 run.dependsOn copyNativeLibs
 
+installApp {
+    dependsOn copyNativeLibs
+    from "${buildDir}/${nativeLibsDir}", {
+        into "lib/${nativeLibsDir}"
+    }
+}
+
 task nativeLibsZip(type: Zip, dependsOn: copyNativeLibs) {
     from "${buildDir}/${nativeLibsDir}"
     classifier = 'native_libs'

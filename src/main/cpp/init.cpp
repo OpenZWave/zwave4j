@@ -5,11 +5,14 @@
 JavaVM * jvm;
 jobject classLoader;
 
-jclass findClass(JNIEnv * env, const char * name) {
-    char * convertedName = (char *) malloc((1 + strlen(name)) * sizeof(char));
+jclass findClass(JNIEnv * env, const char * name)
+{
+    char * convertedName = (char *) malloc((strlen(name) + 1) * sizeof(char));
     strcpy(convertedName, name);
-    for (int i = 0; i < strlen(convertedName); i++) {
-        if (convertedName[i] == '/') {
+    for (int i = 0; i < strlen(convertedName); i++)
+    {
+        if (convertedName[i] == '/')
+        {
             convertedName[i] = '.';
         }
     }
@@ -39,13 +42,13 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * vm, void * pvt)
     }
 
     jclass threadClass = env->FindClass("java/lang/Thread");
-    classLoader = env->CallObjectMethod(
+    classLoader = env->NewWeakGlobalRef(env->CallObjectMethod(
             env->CallStaticObjectMethod(
                     threadClass,
                     env->GetStaticMethodID(threadClass, "currentThread", "()Ljava/lang/Thread;")
             ),
             env->GetMethodID(threadClass, "getContextClassLoader", "()Ljava/lang/ClassLoader;")
-    );
+    ));
 
 	return JNI_VERSION_1_6;
 }
