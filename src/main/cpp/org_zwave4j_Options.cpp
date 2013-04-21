@@ -1,9 +1,10 @@
-#include "../headers/org_zwave4j_Options.h"
 #include <Options.h>
+#include "../headers/init.h"
+#include "../headers/org_zwave4j_Options.h"
 
 jobject getOptions(JNIEnv * env)
 {
-	jclass clazz = env->FindClass("org/zwave4j/Options");
+	jclass clazz = findClass(env, "org/zwave4j/Options");
 	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, "instance", "Lorg/zwave4j/Options;"));
 }
 

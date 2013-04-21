@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class Manager {
 
-    private static Manager instance;
+    public static Manager instance;
 
     public static synchronized Manager create() {
         if (instance == null) {

@@ -1,7 +1,7 @@
-#include "../headers/org_zwave4j_Manager.h"
-#include "../headers/init.h"
 #include <Manager.h>
 #include <Notification.h>
+#include "../headers/init.h"
+#include "../headers/org_zwave4j_Manager.h"
 
 jobject getNotificationType(JNIEnv * env, OpenZWave::Notification::NotificationType type)
 {
@@ -91,14 +91,14 @@ jobject getNotificationType(JNIEnv * env, OpenZWave::Notification::NotificationT
 		break;
 	}
 
-	jclass clazz = env->FindClass("org/zwave4j/NotificationType");
+	jclass clazz = findClass(env, "org/zwave4j/NotificationType");
 	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, name, "Lorg/zwave4j/NotificationType;"));
 }
 
 jobject getValueType(JNIEnv * env, OpenZWave::ValueID::ValueType type)
 {
 	const char * name;
-	switch(type) 
+	switch(type)
 	{
 	case OpenZWave::ValueID::ValueType_Bool:
 		name = "BOOL";
@@ -131,14 +131,14 @@ jobject getValueType(JNIEnv * env, OpenZWave::ValueID::ValueType type)
 		name = "RAW";
 		break;
 	}
-	jclass clazz = env->FindClass("org/zwave4j/ValueType");
+	jclass clazz = findClass(env, "org/zwave4j/ValueType");
 	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, name, "Lorg/zwave4j/ValueType;"));
 }
 
 jobject getValueGenre(JNIEnv * env, OpenZWave::ValueID::ValueGenre type)
 {
 	const char * name;
-	switch(type) 
+	switch(type)
 	{
 	case OpenZWave::ValueID::ValueGenre_Basic:
 		name = "BASIC";
@@ -156,38 +156,38 @@ jobject getValueGenre(JNIEnv * env, OpenZWave::ValueID::ValueGenre type)
 		name = "COUNT";
 		break;
 	}
-	jclass clazz = env->FindClass("org/zwave4j/ValueGenre");
+	jclass clazz = findClass(env, "org/zwave4j/ValueGenre");
 	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, name, "Lorg/zwave4j/ValueGenre;"));
 }
 
 jobject getValueId(JNIEnv * env, OpenZWave::ValueID const * ozwValueId)
 {
-	jclass clazz = env->FindClass("org/zwave4j/ValueId");
+	jclass clazz = findClass(env, "org/zwave4j/ValueId");
 	return env->NewObject(
 		clazz,
 		env->GetMethodID(clazz, "<init>", "(JSLorg/zwave4j/ValueGenre;SSSLorg/zwave4j/ValueType;J)V"),
-		ozwValueId->GetHomeId(), 
-		ozwValueId->GetNodeId(), 
+		ozwValueId->GetHomeId(),
+		ozwValueId->GetNodeId(),
 		getValueGenre(env, ozwValueId->GetGenre()),
 		ozwValueId->GetCommandClassId(),
 		ozwValueId->GetInstance(),
-		ozwValueId->GetIndex(), 
-		getValueType(env, ozwValueId->GetType()), 
+		ozwValueId->GetIndex(),
+		getValueType(env, ozwValueId->GetType()),
 		ozwValueId->GetId()
 	);
 }
 
 jobject getManager(JNIEnv * env)
 {
-	jclass clazz = env->FindClass("org/zwave4j/Manager");
+	jclass clazz = findClass(env, "org/zwave4j/Manager");
 	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, "instance", "Lorg/zwave4j/Manager;"));
 }
 
 jobject getNotification(JNIEnv * env, OpenZWave::Notification const * ozwNotification)
 {
-	jclass clazz = env->FindClass("org/zwave4j/Notification");
+	jclass clazz = findClass(env, "org/zwave4j/Notification");
 	return env->NewObject(
-		clazz, 
+		clazz,
 		env->GetMethodID(clazz, "<init>", "(Lorg/zwave4j/NotificationType;Lorg/zwave4j/ValueId;S)V"),
 		getNotificationType(env, ozwNotification->GetType()),
 		getValueId(env, &ozwNotification->GetValueID()),
@@ -198,7 +198,7 @@ jobject getNotification(JNIEnv * env, OpenZWave::Notification const * ozwNotific
 OpenZWave::ValueID::ValueType getOzwValueType(JNIEnv * env, jobject valueType)
 {
 	jstring name = (jstring) env->CallObjectMethod(
-		valueType, env->GetMethodID(env->FindClass("org/zwave4j/ValueType"), "name", "()Ljava/lang/String;")
+		valueType, env->GetMethodID(findClass(env, "org/zwave4j/ValueType"), "name", "()Ljava/lang/String;")
 	);
 	const char * nameChars = env->GetStringUTFChars(name, NULL);
 	OpenZWave::ValueID::ValueType ozwValueType;
@@ -230,7 +230,7 @@ OpenZWave::ValueID::ValueType getOzwValueType(JNIEnv * env, jobject valueType)
 OpenZWave::ValueID::ValueGenre getOzwValueGenre(JNIEnv * env, jobject valueGenre)
 {
 	jstring name = (jstring) env->CallObjectMethod(
-		valueGenre, env->GetMethodID(env->FindClass("org/zwave4j/ValueGenre"), "name", "()Ljava/lang/String;")
+		valueGenre, env->GetMethodID(findClass(env, "org/zwave4j/ValueGenre"), "name", "()Ljava/lang/String;")
 	);
 	const char * nameChars = env->GetStringUTFChars(name, NULL);
 	OpenZWave::ValueID::ValueGenre ozwValueGenre;
@@ -244,14 +244,14 @@ OpenZWave::ValueID::ValueGenre getOzwValueGenre(JNIEnv * env, jobject valueGenre
 		ozwValueGenre = OpenZWave::ValueID::ValueGenre_System;
 	else if (strcmp(nameChars, "COUNT") == 0)
 		ozwValueGenre = OpenZWave::ValueID::ValueGenre_Count;
-	
+
 	env->ReleaseStringUTFChars(name, nameChars);
 	return ozwValueGenre;
 }
 
 OpenZWave::ValueID getOzwValueId(JNIEnv * env, jobject valueId)
 {
-	jclass clazz = env->FindClass("org/zwave4j/ValueId");
+	jclass clazz = findClass(env, "org/zwave4j/ValueId");
 	return OpenZWave::ValueID(
 		(uint32) env->CallLongMethod(valueId, env->GetMethodID(clazz, "getHomeId", "()J")),
 		(uint8) env->CallShortMethod(valueId, env->GetMethodID(clazz, "getNodeId", "()S")),
@@ -276,8 +276,8 @@ void onNotification(OpenZWave::Notification const * ozwNotification, void * cont
     }
 
 	env->CallVoidMethod(
-		getManager(env), 
-		env->GetMethodID(env->FindClass("org/zwave4j/Manager"), "fireNotificationWatchers", "(Lorg/zwave4j/Notification;)V"), 
+		getManager(env),
+		env->GetMethodID(findClass(env, "org/zwave4j/Manager"), "fireNotificationWatchers", "(Lorg/zwave4j/Notification;)V"),
 		getNotification(env, ozwNotification)
 	);
 
@@ -327,7 +327,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_writeConfig
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_addDriver
   (JNIEnv * env, jobject object, jstring path)
 {
-	const char * pathChars = env->GetStringUTFChars(path, NULL); 
+	const char * pathChars = env->GetStringUTFChars(path, NULL);
 	jboolean result = OpenZWave::Manager::Get()->AddDriver(std::string(pathChars)) ? JNI_TRUE : JNI_FALSE;
 	env->ReleaseStringUTFChars(path, pathChars);
 	return result;
@@ -341,7 +341,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_addDriver
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_removeDriver
   (JNIEnv * env, jobject object, jstring path)
 {
-	const char * pathChars = env->GetStringUTFChars(path, NULL); 
+	const char * pathChars = env->GetStringUTFChars(path, NULL);
 	jboolean result = OpenZWave::Manager::Get()->RemoveDriver(std::string(pathChars)) ? JNI_TRUE : JNI_FALSE;
 	env->ReleaseStringUTFChars(path, pathChars);
 	return result;
@@ -676,7 +676,7 @@ JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeProductId
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeManufacturerName
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jstring manufacturerName)
 {
-	const char * manufacturerNameChars = env->GetStringUTFChars(manufacturerName, NULL);  
+	const char * manufacturerNameChars = env->GetStringUTFChars(manufacturerName, NULL);
 	OpenZWave::Manager::Get()->SetNodeManufacturerName((uint32) homeId, (uint8) nodeId, std::string(manufacturerNameChars));
 	env->ReleaseStringUTFChars(manufacturerName, manufacturerNameChars);
 }
@@ -689,7 +689,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeManufacturerName
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeProductName
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jstring productName)
 {
-	const char * productNameChars = env->GetStringUTFChars(productName, NULL);  
+	const char * productNameChars = env->GetStringUTFChars(productName, NULL);
 	OpenZWave::Manager::Get()->SetNodeProductName((uint32) homeId, (uint8) nodeId, std::string(productNameChars));
 	env->ReleaseStringUTFChars(productName, productNameChars);
 }
@@ -780,7 +780,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getNodeClassInformation
 	}
 	uint8 ozwClassVersion;
 	if (classVersion != NULL) {
-		ozwClassVersion = (uint8) env->CallShortMethod(classVersion, env->GetMethodID(env->FindClass("java/lang/Short"), "shortValue", "()S"));
+		ozwClassVersion = (uint8) env->CallShortMethod(classVersion, env->GetMethodID(findClass(env, "java/lang/Short"), "shortValue", "()S"));
 	}
 	jboolean result = OpenZWave::Manager::Get()->GetNodeClassInformation(
 	    (uint32) homeId,
@@ -791,7 +791,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getNodeClassInformation
     ) ? JNI_TRUE : JNI_FALSE;
 
 	if (className != NULL) {
-		env->ReleaseStringUTFChars(className, classNameChars); 
+		env->ReleaseStringUTFChars(className, classNameChars);
 	}
 	return result;
 }
@@ -978,11 +978,11 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsBool
 	bool ozwValue;
 	jboolean result = OpenZWave::Manager::Get()->GetValueAsBool(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
 	env->CallVoidMethod(
-		value, 
-		env->GetMethodID(env->FindClass("java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
+		value,
+		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
-			env->FindClass("java/lang/Boolean"), 
-			env->GetMethodID(env->FindClass("java/lang/Boolean"), "<init>", "(Z)V"),
+			findClass(env, "java/lang/Boolean"),
+			env->GetMethodID(findClass(env, "java/lang/Boolean"), "<init>", "(Z)V"),
 			ozwValue ? JNI_TRUE : JNI_FALSE
 		)
 	);
@@ -1000,11 +1000,11 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsByte
 	uint8 ozwValue;
 	jboolean result = OpenZWave::Manager::Get()->GetValueAsByte(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
 	env->CallVoidMethod(
-		value, 
-		env->GetMethodID(env->FindClass("java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
+		value,
+		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
-			env->FindClass("java/lang/Byte"), 
-			env->GetMethodID(env->FindClass("java/lang/Byte"), "<init>", "(B)V"),
+			findClass(env, "java/lang/Byte"),
+			env->GetMethodID(findClass(env, "java/lang/Byte"), "<init>", "(B)V"),
 			(jbyte) ozwValue
 		)
 	);
@@ -1022,11 +1022,11 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsFloat
 	float ozwValue;
 	jboolean result = OpenZWave::Manager::Get()->GetValueAsFloat(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
 	env->CallVoidMethod(
-		value, 
-		env->GetMethodID(env->FindClass("java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
+		value,
+		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
-			env->FindClass("java/lang/Float"), 
-			env->GetMethodID(env->FindClass("java/lang/Float"), "<init>", "(F)V"),
+			findClass(env, "java/lang/Float"),
+			env->GetMethodID(findClass(env, "java/lang/Float"), "<init>", "(F)V"),
 			(jfloat) ozwValue
 		)
 	);
@@ -1044,11 +1044,11 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsInt
 	int32 ozwValue;
 	jboolean result = OpenZWave::Manager::Get()->GetValueAsInt(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
 	env->CallVoidMethod(
-		value, 
-		env->GetMethodID(env->FindClass("java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
+		value,
+		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
-			env->FindClass("java/lang/Integer"), 
-			env->GetMethodID(env->FindClass("java/lang/Integer"), "<init>", "(I)V"),
+			findClass(env, "java/lang/Integer"),
+			env->GetMethodID(findClass(env, "java/lang/Integer"), "<init>", "(I)V"),
 			(jint) ozwValue
 		)
 	);
@@ -1066,11 +1066,11 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsShort
 	int16 ozwValue;
 	jboolean result = OpenZWave::Manager::Get()->GetValueAsShort(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
 	env->CallVoidMethod(
-		value, 
-		env->GetMethodID(env->FindClass("java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
+		value,
+		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
-			env->FindClass("java/lang/Short"), 
-			env->GetMethodID(env->FindClass("java/lang/Short"), "<init>", "(S)V"),
+			findClass(env, "java/lang/Short"),
+			env->GetMethodID(findClass(env, "java/lang/Short"), "<init>", "(S)V"),
 			(jshort) ozwValue
 		)
 	);
@@ -1088,8 +1088,8 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsString
 	std::string ozwValue;
 	jboolean result = OpenZWave::Manager::Get()->GetValueAsString(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
 	env->CallVoidMethod(
-		value, 
-		env->GetMethodID(env->FindClass("java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
+		value,
+		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewStringUTF(ozwValue.c_str())
 	);
 	return result;
@@ -1108,8 +1108,8 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsRaw
 	jboolean result = OpenZWave::Manager::Get()->GetValueAsRaw(getOzwValueId(env, valueId), &ozwValue, &length) ? JNI_TRUE : JNI_FALSE;
 	//TODO
 	/*env->CallVoidMethod(
-		value, 
-		env->GetMethodID(env->FindClass("java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
+		value,
+		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		* ozwValue
 	);*/
 	return result;
@@ -1126,8 +1126,8 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueListSelectionString
 	std::string ozwValue;
 	jboolean result = OpenZWave::Manager::Get()->GetValueListSelection(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
 	env->CallVoidMethod(
-		value, 
-		env->GetMethodID(env->FindClass("java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
+		value,
+		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewStringUTF(ozwValue.c_str())
 	);
 	return result;
@@ -1144,11 +1144,11 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueListSelectionInt
 	int32 ozwValue;
 	jboolean result = OpenZWave::Manager::Get()->GetValueListSelection(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
 	env->CallVoidMethod(
-		value, 
-		env->GetMethodID(env->FindClass("java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
+		value,
+		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
-			env->FindClass("java/lang/Integer"), 
-			env->GetMethodID(env->FindClass("java/lang/Integer"), "<init>", "(I)V"),
+			findClass(env, "java/lang/Integer"),
+			env->GetMethodID(findClass(env, "java/lang/Integer"), "<init>", "(I)V"),
 			(jint) ozwValue
 		)
 	);
@@ -1167,8 +1167,8 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueListItems
 	jboolean result = OpenZWave::Manager::Get()->GetValueListItems(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
 	//TODO
 	/*env->CallVoidMethod(
-		value, 
-		env->GetMethodID(env->FindClass("java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
+		value,
+		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		ozwValue
 	);*/
 	return result;
@@ -1185,11 +1185,11 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueFloatPrecision
 	uint8 ozwValue;
 	jboolean result = OpenZWave::Manager::Get()->GetValueFloatPrecision(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
 	env->CallVoidMethod(
-		value, 
-		env->GetMethodID(env->FindClass("java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
+		value,
+		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
-			env->FindClass("java/lang/Short"), 
-			env->GetMethodID(env->FindClass("java/lang/Short"), "<init>", "(S)V"),
+			findClass(env, "java/lang/Short"),
+			env->GetMethodID(findClass(env, "java/lang/Short"), "<init>", "(S)V"),
 			(jshort) ozwValue
 		)
 	);
