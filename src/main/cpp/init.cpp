@@ -42,7 +42,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * vm, void * pvt)
     }
 
     jclass threadClass = env->FindClass("java/lang/Thread");
-    classLoader = env->NewWeakGlobalRef(env->CallObjectMethod(
+    classLoader = env->NewGlobalRef(env->CallObjectMethod(
             env->CallStaticObjectMethod(
                     threadClass,
                     env->GetStaticMethodID(threadClass, "currentThread", "()Ljava/lang/Thread;")
