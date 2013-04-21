@@ -67,7 +67,7 @@ run.dependsOn copyNativeLibs
 
 task nativeLibsZip(type: Zip, dependsOn: copyNativeLibs) {
     from "${buildDir}/${nativeLibsDir}"
-    classifier = 'native'
+    classifier = 'native_libs'
 }
 
 task srcJar(type: Jar) {
