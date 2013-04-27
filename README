@@ -1,0 +1,22 @@
+zwave4j - java wrapper for OpenZwave (https://code.google.com/p/open-zwave/) library.
+The goal is to provide to java the same API as OpenZwave has.
+Besides the wrapper zwave4j has a simple executable Main class which is able to log notifications and switch all nodes on and off.
+
+Requirements:
+
+1. JDK 1.7+
+2. Gradle 1.5+
+3. GCC for *nix or MinGW for windows
+
+Build:
+
+Build script is designed to be able to build under *nix and windows platforms with x86 and amd64 architectures.
+It supports GCC compiler under *nix and MinGW under windows.
+However, it was tested only on windows 7 amd64 with 64-bit MinGW (http://sourceforge.net/projects/mingwbuilds/).
+
+1. Copy example.gradle.properties into gradle.properties.
+2. Download and compile OpenZwave library.
+3. Edit properties in gradle.properties:
+    'openZwaveDir' - path to OpenZwave library source directory.
+    'openZwaveLibFile' - path to compiled OpenZwave library object file.
+4. Run 'gradle run' in console. It will compile native JNI library and java classes and run Main class.

@@ -10,7 +10,7 @@ mainClassName = 'org.zwave4j.Main'
 
 ext {
     openZwaveDir = project.openZwaveDir
-    openZwaveLibFile = "${project.openZwaveDir}/${project.openZwaveLibFile}"
+    openZwaveLibFile = project.openZwaveLibFile
 
     javaHome = System.getenv('JAVA_HOME')
     nativeClasses = ['org.zwave4j.Manager', 'org.zwave4j.Options']
