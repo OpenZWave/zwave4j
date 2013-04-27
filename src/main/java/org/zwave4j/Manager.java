@@ -128,9 +128,9 @@ public class Manager {
 
     public native boolean getNodeClassInformation(long homeId, short nodeId, short commandClassId, String className, Short classVersion);
 
-    public boolean getNodeClassInformation(long homeId, short nodeId, short commandClassId) {
-        return getNodeClassInformation(homeId, nodeId, commandClassId, null, null);
-    }
+    public native boolean getNodeClassInformation(long homeId, short nodeId, short commandClassId, String className);
+
+    public native boolean getNodeClassInformation(long homeId, short nodeId, short commandClassId);
 
     public native boolean isNodeAwake(long homeId, short nodeId);
 
@@ -219,10 +219,8 @@ public class Manager {
     
     //Node configuration
     public native boolean setConfigParam(long homeId, short nodeId, short param, int value, short size);
-    
-    public boolean setConfigParam(long homeId, short nodeId, short param, int value) {
-        return setConfigParam(homeId, nodeId, param, value, (short) 2);     
-    }
+
+    public native boolean setConfigParam(long homeId, short nodeId, short param, int value);
 
     public native void requestConfigParam(long homeId, short nodeId, short param);
 
