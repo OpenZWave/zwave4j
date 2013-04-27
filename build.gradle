@@ -9,12 +9,30 @@ version = '0.1'
 mainClassName = 'org.zwave4j.Main'
 
 ext {
+    openZwaveDir = project.openZwaveDir
+    openZwaveLibFile = "${project.openZwaveDir}/${project.openZwaveLibFile}"
+
     javaHome = System.getenv('JAVA_HOME')
-    openZwaveDir = "D:/private/projects/_3rd party/open-zwave"
-    openZwaveLibFile = "${openZwaveDir}/cpp/lib/windows-mingw32/openzwave.a"
-    architecture = "amd64"//"x86"
     nativeClasses = ['org.zwave4j.Manager', 'org.zwave4j.Options']
     nativeLibsDir = 'native-libs'
+
+    def osName = System.properties["os.name"]
+    if (osName == "Linux") {
+        os = "linux"
+    } else if (osName.startsWith("Win")) {
+        os = "windows"
+    } else if (osName == "SunOS"){
+        os = "solaris"
+    } else if (osName == "Mac OS X") {
+        os = "mac_os_x"
+    }
+
+    def architectureName = System.properties["os.arch"]
+    if (architectureName == "i386" || architectureName == "i686") {
+        architecture = "x86"
+    } else if (architectureName == "amd64") {
+        architecture = "amd64"
+    }
 }
 
 repositories {
@@ -60,7 +78,7 @@ compileMain.dependsOn generateNativeHeaders
 
 task copyNativeLibs(type: Copy, dependsOn: compileMain) {
     from "${buildDir}/binaries"
-    into "${buildDir}/${nativeLibsDir}/windows/${architecture}"
+    into "${buildDir}/${nativeLibsDir}/${os}/${architecture}"
 }
 
 run.dependsOn copyNativeLibs
