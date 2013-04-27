@@ -14,9 +14,8 @@ public class ValueId {
     private short instance;
     private short index;
     private ValueType type;
-    private long id;
 
-    public ValueId(long homeId, short nodeId, ValueGenre genre, short commandClassId, short instance, short index, ValueType type, long id) {
+    public ValueId(long homeId, short nodeId, ValueGenre genre, short commandClassId, short instance, short index, ValueType type) {
         this.homeId = homeId;
         this.nodeId = nodeId;
         this.genre = genre;
@@ -24,7 +23,6 @@ public class ValueId {
         this.instance = instance;
         this.index = index;
         this.type = type;
-        this.id = id;
     }
 
     public long getHomeId() {
@@ -53,9 +51,5 @@ public class ValueId {
 
     public ValueType getType(){
         return type;
-    }
-
-    public long getId() {
-        return id;
     }
 }

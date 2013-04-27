@@ -165,15 +165,14 @@ jobject getValueId(JNIEnv * env, OpenZWave::ValueID const * ozwValueId)
 	jclass clazz = findClass(env, "org/zwave4j/ValueId");
 	return env->NewObject(
 		clazz,
-		env->GetMethodID(clazz, "<init>", "(JSLorg/zwave4j/ValueGenre;SSSLorg/zwave4j/ValueType;J)V"),
+		env->GetMethodID(clazz, "<init>", "(JSLorg/zwave4j/ValueGenre;SSSLorg/zwave4j/ValueType;)V"),
 		ozwValueId->GetHomeId(),
 		ozwValueId->GetNodeId(),
 		getValueGenre(env, ozwValueId->GetGenre()),
 		ozwValueId->GetCommandClassId(),
 		ozwValueId->GetInstance(),
 		ozwValueId->GetIndex(),
-		getValueType(env, ozwValueId->GetType()),
-		ozwValueId->GetId()
+		getValueType(env, ozwValueId->GetType())
 	);
 }
 
@@ -1283,7 +1282,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueFloatPrecision
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsBool
   (JNIEnv * env, jobject object, jobject valueId, jboolean value)
 {
-	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), value) ? JNI_TRUE : JNI_FALSE;
+	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), (value == JNI_FALSE) ? false : true) ? JNI_TRUE : JNI_FALSE;
 }
 
 /*
@@ -1294,7 +1293,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsBool
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsByte
   (JNIEnv * env, jobject object, jobject valueId, jshort value)
 {
-	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), value) ? JNI_TRUE : JNI_FALSE;
+	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), (uint8) value) ? JNI_TRUE : JNI_FALSE;
 }
 
 /*
@@ -1305,7 +1304,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsByte
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsFloat
   (JNIEnv * env, jobject object, jobject valueId, jfloat value)
 {
-	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), value) ? JNI_TRUE : JNI_FALSE;
+	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), (float) value) ? JNI_TRUE : JNI_FALSE;
 }
 
 /*
@@ -1327,7 +1326,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsInt
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsShort
   (JNIEnv * env, jobject object, jobject valueId, jshort value)
 {
-	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), value) ? JNI_TRUE : JNI_FALSE;
+	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), (int16) value) ? JNI_TRUE : JNI_FALSE;
 }
 
 /*
@@ -1398,7 +1397,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_refreshValue
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setChangeVerified
   (JNIEnv * env, jobject object, jobject valueId, jboolean verify)
 {
-	return OpenZWave::Manager::Get()->SetChangeVerified(getOzwValueId(env, valueId), (verify == JNI_FALSE) ? false : true);
+	OpenZWave::Manager::Get()->SetChangeVerified(getOzwValueId(env, valueId), (verify == JNI_FALSE) ? false : true);
 }
 
 /*
@@ -1453,7 +1452,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_switchAllOff
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setConfigParam
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jshort param, jint value, jshort size)
 {
-	return OpenZWave::Manager::Get()->SetConfigParam((uint32) homeId, (uint8) nodeId, (uint8) param, value, (uint8) size) ? JNI_TRUE : JNI_FALSE;
+	return OpenZWave::Manager::Get()->SetConfigParam((uint32) homeId, (uint8) nodeId, (uint8) param, (int32) value, (uint8) size) ? JNI_TRUE : JNI_FALSE;
 }
 
 /*
@@ -1464,7 +1463,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setConfigParam
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setConfigParam__JSSI
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jshort param, jint value)
 {
-    return OpenZWave::Manager::Get()->SetConfigParam((uint32) homeId, (uint8) nodeId, (uint8) param, value) ? JNI_TRUE : JNI_FALSE;
+    return OpenZWave::Manager::Get()->SetConfigParam((uint32) homeId, (uint8) nodeId, (uint8) param, (int32) value) ? JNI_TRUE : JNI_FALSE;
 }
 
 /*

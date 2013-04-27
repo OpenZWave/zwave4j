@@ -54,6 +54,7 @@ libraries {
             args openZwaveLibFile
             args "-lsetupapi"
             args (architecture == "amd64" ? "-m64" : (architecture == "x86" ? "-m32" : ""))
+            args "-g"
         }
     }
 }
