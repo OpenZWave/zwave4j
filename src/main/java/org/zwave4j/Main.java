@@ -51,6 +51,9 @@ public class Main {
                     case NODE_QUERIES_COMPLETE:
                         System.out.println(String.format("Node queries complete, node id: %d", notification.getNodeId()));
                         break;
+                    case NODE_EVENT:
+                        System.out.println(String.format("Node event %d, node id: %d", notification.getEvent(), notification.getNodeId()));
+                        break;
                     case VALUE_ADDED:
                         System.out.println(String.format("Value added, node id: %d",  notification.getNodeId()));
                         break;

@@ -6,7 +6,7 @@
 jobject getNotificationType(JNIEnv * env, OpenZWave::Notification::NotificationType type)
 {
 	const char * name;
-	switch(type) 
+	switch(type)
 	{
 	case OpenZWave::Notification::Type_ValueAdded:
 		name = "VALUE_ADDED";
@@ -252,14 +252,14 @@ OpenZWave::ValueID getOzwValueId(JNIEnv * env, jobject valueId)
 {
 	jclass clazz = findClass(env, "org/zwave4j/ValueId");
 	return OpenZWave::ValueID(
-		(uint32) env->CallLongMethod(valueId, env->GetMethodID(clazz, "getHomeId", "()J")),
-		(uint8) env->CallShortMethod(valueId, env->GetMethodID(clazz, "getNodeId", "()S")),
+		getUint32(env->CallLongMethod(valueId, env->GetMethodID(clazz, "getHomeId", "()J"))),
+		getUint8(env->CallShortMethod(valueId, env->GetMethodID(clazz, "getNodeId", "()S"))),
 		getOzwValueGenre(
 			env, env->CallObjectMethod(valueId, env->GetMethodID(clazz, "getGenre", "()Lorg/zwave4j/ValueGenre;"))
 		),
-		(uint8) env->CallShortMethod(valueId, env->GetMethodID(clazz, "getCommandClassId", "()S")),
-		(uint8) env->CallShortMethod(valueId, env->GetMethodID(clazz, "getInstance", "()S")),
-		(uint8) env->CallShortMethod(valueId, env->GetMethodID(clazz, "getIndex", "()S")),
+		getUint8(env->CallShortMethod(valueId, env->GetMethodID(clazz, "getCommandClassId", "()S"))),
+		getUint8(env->CallShortMethod(valueId, env->GetMethodID(clazz, "getInstance", "()S"))),
+		getUint8(env->CallShortMethod(valueId, env->GetMethodID(clazz, "getIndex", "()S"))),
 		getOzwValueType(
 			env, env->CallObjectMethod(valueId, env->GetMethodID(clazz, "getType", "()Lorg/zwave4j/ValueType;"))
 		)
@@ -316,7 +316,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_destroyNativeManager
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_writeConfig
   (JNIEnv * env, jobject object, jlong homeId)
 {
-	OpenZWave::Manager::Get()->WriteConfig((uint32) homeId);
+	OpenZWave::Manager::Get()->WriteConfig(getUint32(homeId));
 }
 
 /*
@@ -328,7 +328,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_addDriver
   (JNIEnv * env, jobject object, jstring path)
 {
 	const char * pathChars = env->GetStringUTFChars(path, NULL);
-	jboolean result = OpenZWave::Manager::Get()->AddDriver(std::string(pathChars)) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->AddDriver(std::string(pathChars)));
 	env->ReleaseStringUTFChars(path, pathChars);
 	return result;
 }
@@ -342,7 +342,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_removeDriver
   (JNIEnv * env, jobject object, jstring path)
 {
 	const char * pathChars = env->GetStringUTFChars(path, NULL);
-	jboolean result = OpenZWave::Manager::Get()->RemoveDriver(std::string(pathChars)) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->RemoveDriver(std::string(pathChars)));
 	env->ReleaseStringUTFChars(path, pathChars);
 	return result;
 }
@@ -366,7 +366,7 @@ JNIEXPORT jint JNICALL Java_org_zwave4j_Manager_getPollInterval
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setPollInterval
   (JNIEnv * env, jobject object, jint milliseconds, jboolean intervalBetweenPolls)
 {
-	OpenZWave::Manager::Get()->SetPollInterval(milliseconds, (intervalBetweenPolls == JNI_FALSE) ? false : true);
+	OpenZWave::Manager::Get()->SetPollInterval(milliseconds, getBool(intervalBetweenPolls));
 }
 
 /*
@@ -377,7 +377,18 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setPollInterval
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_enablePoll
   (JNIEnv * env, jobject object, jobject valueId, jshort intensity)
 {
-	return OpenZWave::Manager::Get()->EnablePoll(getOzwValueId(env, valueId), (uint8) intensity) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->EnablePoll(getOzwValueId(env, valueId), getUint8(intensity)));
+}
+
+/*
+ * Class:     org_zwave4j_Manager
+ * Method:    enablePoll
+ * Signature: (Lorg/zwave4j/ValueId;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_enablePoll__Lorg_zwave4j_ValueId_2
+  (JNIEnv * env, jobject object, jobject valueId)
+{
+    return getJboolean(OpenZWave::Manager::Get()->EnablePoll(getOzwValueId(env, valueId)));
 }
 
 /*
@@ -388,7 +399,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_enablePoll
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_disablePoll
   (JNIEnv * env, jobject object, jobject valueId)
 {
-	return OpenZWave::Manager::Get()->DisablePoll(getOzwValueId(env, valueId)) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->DisablePoll(getOzwValueId(env, valueId)));
 }
 
 /*
@@ -399,7 +410,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_disablePoll
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isPolled
   (JNIEnv * env, jobject object, jobject valueId)
 {
-	return OpenZWave::Manager::Get()->isPolled(getOzwValueId(env, valueId)) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->isPolled(getOzwValueId(env, valueId)));
 }
 
 /*
@@ -410,7 +421,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isPolled
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setPollIntensity
   (JNIEnv * env, jobject object, jobject valueId, jshort intensity)
 {
-	OpenZWave::Manager::Get()->SetPollIntensity(getOzwValueId(env, valueId), (uint8) intensity);
+	OpenZWave::Manager::Get()->SetPollIntensity(getOzwValueId(env, valueId), getUint8(intensity));
 }
 
 /*
@@ -421,7 +432,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setPollIntensity
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_refreshNodeInfo
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->RefreshNodeInfo((uint32) homeId, (uint8) nodeId) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->RefreshNodeInfo(getUint32(homeId), getUint8(nodeId)));
 }
 
 /*
@@ -432,7 +443,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_refreshNodeInfo
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_requestNodeState
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->RequestNodeState((uint32) homeId, (uint8) nodeId) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->RequestNodeState(getUint32(homeId), getUint8(nodeId)));
 }
 
 /*
@@ -443,7 +454,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_requestNodeState
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_requestNodeDynamic
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->RequestNodeDynamic((uint32) homeId, (uint8) nodeId) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->RequestNodeDynamic(getUint32(homeId), getUint8(nodeId)));
 }
 
 /*
@@ -454,7 +465,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_requestNodeDynamic
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeListeningDevice
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->IsNodeListeningDevice((uint32) homeId, (uint8) nodeId) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsNodeListeningDevice(getUint32(homeId), getUint8(nodeId)));
 }
 
 /*
@@ -465,7 +476,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeListeningDevice
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeFrequentListeningDevice
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->IsNodeFrequentListeningDevice((uint32) homeId, (uint8) nodeId) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsNodeFrequentListeningDevice(getUint32(homeId), getUint8(nodeId)));
 }
 
 /*
@@ -476,7 +487,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeFrequentListeningDevic
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeBeamingDevice
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->IsNodeBeamingDevice((uint32) homeId, (uint8) nodeId) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsNodeBeamingDevice(getUint32(homeId), getUint8(nodeId)));
 }
 
 /*
@@ -487,7 +498,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeBeamingDevice
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeRoutingDevice
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->IsNodeRoutingDevice((uint32) homeId, (uint8) nodeId) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsNodeRoutingDevice(getUint32(homeId), getUint8(nodeId)));
 }
 
 /*
@@ -498,7 +509,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeRoutingDevice
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeSecurityDevice
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->IsNodeSecurityDevice((uint32) homeId, (uint8) nodeId) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsNodeSecurityDevice(getUint32(homeId), getUint8(nodeId)));
 }
 
 /*
@@ -509,7 +520,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeSecurityDevice
 JNIEXPORT jlong JNICALL Java_org_zwave4j_Manager_getNodeMaxBaudRate
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->GetNodeMaxBaudRate((uint32) homeId, (uint8) nodeId);
+	return OpenZWave::Manager::Get()->GetNodeMaxBaudRate(getUint32(homeId), getUint8(nodeId));
 }
 
 /*
@@ -520,7 +531,7 @@ JNIEXPORT jlong JNICALL Java_org_zwave4j_Manager_getNodeMaxBaudRate
 JNIEXPORT jshort JNICALL Java_org_zwave4j_Manager_getNodeVersion
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->GetNodeVersion((uint32) homeId, (uint8) nodeId);
+	return OpenZWave::Manager::Get()->GetNodeVersion(getUint32(homeId), getUint8(nodeId));
 }
 
 /*
@@ -531,7 +542,7 @@ JNIEXPORT jshort JNICALL Java_org_zwave4j_Manager_getNodeVersion
 JNIEXPORT jshort JNICALL Java_org_zwave4j_Manager_getNodeSecurity
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->GetNodeSecurity((uint32) homeId, (uint8) nodeId);
+	return OpenZWave::Manager::Get()->GetNodeSecurity(getUint32(homeId), getUint8(nodeId));
 }
 
 /*
@@ -542,7 +553,7 @@ JNIEXPORT jshort JNICALL Java_org_zwave4j_Manager_getNodeSecurity
 JNIEXPORT jshort JNICALL Java_org_zwave4j_Manager_getNodeBasic
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->GetNodeBasic((uint32) homeId, (uint8) nodeId);
+	return OpenZWave::Manager::Get()->GetNodeBasic(getUint32(homeId), getUint8(nodeId));
 }
 
 /*
@@ -553,7 +564,7 @@ JNIEXPORT jshort JNICALL Java_org_zwave4j_Manager_getNodeBasic
 JNIEXPORT jshort JNICALL Java_org_zwave4j_Manager_getNodeGeneric
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->GetNodeGeneric((uint32) homeId, (uint8) nodeId);
+	return OpenZWave::Manager::Get()->GetNodeGeneric(getUint32(homeId), getUint8(nodeId));
 }
 
 /*
@@ -564,7 +575,7 @@ JNIEXPORT jshort JNICALL Java_org_zwave4j_Manager_getNodeGeneric
 JNIEXPORT jshort JNICALL Java_org_zwave4j_Manager_getNodeSpecific
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->GetNodeSpecific((uint32) homeId, (uint8) nodeId);
+	return OpenZWave::Manager::Get()->GetNodeSpecific(getUint32(homeId), getUint8(nodeId));
 }
 
 /*
@@ -575,7 +586,7 @@ JNIEXPORT jshort JNICALL Java_org_zwave4j_Manager_getNodeSpecific
 JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeType
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeType((uint32) homeId, (uint8) nodeId).c_str());
+	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeType(getUint32(homeId), getUint8(nodeId)).c_str());
 }
 
 /*
@@ -587,13 +598,13 @@ JNIEXPORT jlong JNICALL Java_org_zwave4j_Manager_getNodeNeighbors
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jobject nodeNeighbors)
 {
 	uint8 * ozwNodeNeighbors;
-	uint32 neighborsAmount = OpenZWave::Manager::Get()->GetNodeNeighbors((uint32) homeId, (uint8) nodeId, &ozwNodeNeighbors);
+	uint32 neighborsAmount = OpenZWave::Manager::Get()->GetNodeNeighbors(getUint32(homeId), getUint8(nodeId), &ozwNodeNeighbors);
 
-    jshortArray neighborsArray = env->NewShortArray((jsize) neighborsAmount);
+    jshortArray neighborsArray = env->NewShortArray(getJsize(neighborsAmount));
 	jshort * neighborsArrayElements = env->GetShortArrayElements(neighborsArray, NULL);
 	for (int i = 0; i < neighborsAmount; ++i)
 	{
-	    neighborsArrayElements[i] = (jshort) ozwNodeNeighbors[i];
+	    neighborsArrayElements[i] = getJshort(ozwNodeNeighbors[i]);
 	}
 	env->ReleaseShortArrayElements(neighborsArray, neighborsArrayElements, 0);
 
@@ -615,7 +626,7 @@ JNIEXPORT jlong JNICALL Java_org_zwave4j_Manager_getNodeNeighbors
 JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeManufacturerName
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeManufacturerName((uint32) homeId, (uint8) nodeId).c_str());
+	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeManufacturerName(getUint32(homeId), getUint8(nodeId)).c_str());
 }
 
 /*
@@ -626,7 +637,7 @@ JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeManufacturerName
 JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeProductName
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeProductName((uint32) homeId, (uint8) nodeId).c_str());
+	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeProductName(getUint32(homeId), getUint8(nodeId)).c_str());
 }
 
 /*
@@ -637,7 +648,7 @@ JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeProductName
 JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeName
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeName((uint32) homeId, (uint8) nodeId).c_str());
+	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeName(getUint32(homeId), getUint8(nodeId)).c_str());
 }
 
 /*
@@ -648,7 +659,7 @@ JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeName
 JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeLocation
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeLocation((uint32) homeId, (uint8) nodeId).c_str());
+	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeLocation(getUint32(homeId), getUint8(nodeId)).c_str());
 }
 
 /*
@@ -659,7 +670,7 @@ JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeLocation
 JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeManufacturerId
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeManufacturerId((uint32) homeId, (uint8) nodeId).c_str());
+	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeManufacturerId(getUint32(homeId), getUint8(nodeId)).c_str());
 }
 
 /*
@@ -670,7 +681,7 @@ JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeManufacturerId
 JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeProductType
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeProductType((uint32) homeId, (uint8) nodeId).c_str());
+	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeProductType(getUint32(homeId), getUint8(nodeId)).c_str());
 }
 
 /*
@@ -681,7 +692,7 @@ JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeProductType
 JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeProductId
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeProductId((uint32) homeId, (uint8) nodeId).c_str());
+	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeProductId(getUint32(homeId), getUint8(nodeId)).c_str());
 }
 
 /*
@@ -693,7 +704,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeManufacturerName
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jstring manufacturerName)
 {
 	const char * manufacturerNameChars = env->GetStringUTFChars(manufacturerName, NULL);
-	OpenZWave::Manager::Get()->SetNodeManufacturerName((uint32) homeId, (uint8) nodeId, std::string(manufacturerNameChars));
+	OpenZWave::Manager::Get()->SetNodeManufacturerName(getUint32(homeId), getUint8(nodeId), std::string(manufacturerNameChars));
 	env->ReleaseStringUTFChars(manufacturerName, manufacturerNameChars);
 }
 
@@ -706,7 +717,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeProductName
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jstring productName)
 {
 	const char * productNameChars = env->GetStringUTFChars(productName, NULL);
-	OpenZWave::Manager::Get()->SetNodeProductName((uint32) homeId, (uint8) nodeId, std::string(productNameChars));
+	OpenZWave::Manager::Get()->SetNodeProductName(getUint32(homeId), getUint8(nodeId), std::string(productNameChars));
 	env->ReleaseStringUTFChars(productName, productNameChars);
 }
 
@@ -719,7 +730,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeName
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jstring nodeName)
 {
 	const char * nodeNameChars = env->GetStringUTFChars(nodeName, NULL);
-	OpenZWave::Manager::Get()->SetNodeName((uint32) homeId, (uint8) nodeId, std::string(nodeNameChars));
+	OpenZWave::Manager::Get()->SetNodeName(getUint32(homeId), getUint8(nodeId), std::string(nodeNameChars));
 	env->ReleaseStringUTFChars(nodeName, nodeNameChars);
 }
 
@@ -732,7 +743,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeLocation
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jstring location)
 {
 	const char * locationChars = env->GetStringUTFChars(location, NULL);
-	OpenZWave::Manager::Get()->SetNodeLocation((uint32) homeId, (uint8) nodeId, std::string(locationChars));
+	OpenZWave::Manager::Get()->SetNodeLocation(getUint32(homeId), getUint8(nodeId), std::string(locationChars));
 	env->ReleaseStringUTFChars(location, locationChars);
 }
 
@@ -744,7 +755,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeLocation
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeOn
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	OpenZWave::Manager::Get()->SetNodeOn((uint32) homeId, (uint8) nodeId);
+	OpenZWave::Manager::Get()->SetNodeOn(getUint32(homeId), getUint8(nodeId));
 }
 
 /*
@@ -755,7 +766,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeOn
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeOff
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	OpenZWave::Manager::Get()->SetNodeOff((uint32) homeId, (uint8) nodeId);
+	OpenZWave::Manager::Get()->SetNodeOff(getUint32(homeId), getUint8(nodeId));
 }
 
 /*
@@ -766,7 +777,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeOff
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeLevel
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jshort level)
 {
-	OpenZWave::Manager::Get()->SetNodeLevel((uint32) homeId, (uint8) nodeId, (uint8) level);
+	OpenZWave::Manager::Get()->SetNodeLevel(getUint32(homeId), getUint8(nodeId), getUint8(level));
 }
 
 /*
@@ -777,7 +788,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setNodeLevel
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeInfoReceived
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->IsNodeInfoReceived((uint32) homeId, (uint8) nodeId) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsNodeInfoReceived(getUint32(homeId), getUint8(nodeId)));
 }
 
 /*
@@ -798,15 +809,15 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getNodeClassInformation
 	uint8 ozwClassVersion;
 	if (classVersion != NULL)
 	{
-		ozwClassVersion = (uint8) env->CallShortMethod(classVersion, env->GetMethodID(findClass(env, "java/lang/Short"), "shortValue", "()S"));
+		ozwClassVersion = getUint8(env->CallShortMethod(classVersion, env->GetMethodID(findClass(env, "java/lang/Short"), "shortValue", "()S")));
 	}
-	jboolean result = OpenZWave::Manager::Get()->GetNodeClassInformation(
-	    (uint32) homeId,
-	    (uint8) nodeId,
-	    (uint8) commandClassId,
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetNodeClassInformation(
+	    getUint32(homeId),
+	    getUint8(nodeId),
+	    getUint8(commandClassId),
 	    (className != NULL) ? &classNameString : NULL,
 	    (classVersion != NULL) ? &ozwClassVersion : NULL
-    ) ? JNI_TRUE : JNI_FALSE;
+    ));
 
 	if (className != NULL)
 	{
@@ -830,12 +841,12 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getNodeClassInformation__JSS
 		classNameChars = env->GetStringUTFChars(className, NULL);
 		classNameString = classNameChars;
 	}
-	jboolean result = OpenZWave::Manager::Get()->GetNodeClassInformation(
-	    (uint32) homeId,
-	    (uint8) nodeId,
-	    (uint8) commandClassId,
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetNodeClassInformation(
+	    getUint32(homeId),
+	    getUint8(nodeId),
+	    getUint8(commandClassId),
 	    (className != NULL) ? &classNameString : NULL
-    ) ? JNI_TRUE : JNI_FALSE;
+    ));
 
 	if (className != NULL)
 	{
@@ -852,11 +863,11 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getNodeClassInformation__JSS
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getNodeClassInformation__JSS
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jshort commandClassId)
 {
-    return OpenZWave::Manager::Get()->GetNodeClassInformation(
-	    (uint32) homeId,
-	    (uint8) nodeId,
-	    (uint8) commandClassId
-    ) ? JNI_TRUE : JNI_FALSE;
+    return getJboolean(OpenZWave::Manager::Get()->GetNodeClassInformation(
+	    getUint32(homeId),
+	    getUint8(nodeId),
+	    getUint8(commandClassId)
+    ));
 }
 
 /*
@@ -867,7 +878,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getNodeClassInformation__JSS
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeAwake
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->IsNodeAwake((uint32) homeId, (uint8) nodeId) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsNodeAwake(getUint32(homeId), getUint8(nodeId)));
 }
 
 /*
@@ -878,7 +889,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeAwake
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeFailed
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return OpenZWave::Manager::Get()->IsNodeFailed((uint32) homeId, (uint8) nodeId) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsNodeFailed(getUint32(homeId), getUint8(nodeId)));
 }
 
 /*
@@ -889,7 +900,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isNodeFailed
 JNIEXPORT jstring JNICALL Java_org_zwave4j_Manager_getNodeQueryStage
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeQueryStage((uint32) homeId, (uint8) nodeId).c_str());
+	return env->NewStringUTF(OpenZWave::Manager::Get()->GetNodeQueryStage(getUint32(homeId), getUint8(nodeId)).c_str());
 }
 
 /*
@@ -994,7 +1005,7 @@ JNIEXPORT jint JNICALL Java_org_zwave4j_Manager_getValueMax
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isValueReadOnly
   (JNIEnv * env, jobject object, jobject valueId)
 {
-	return OpenZWave::Manager::Get()->IsValueReadOnly(getOzwValueId(env, valueId)) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsValueReadOnly(getOzwValueId(env, valueId)));
 }
 
 /*
@@ -1005,7 +1016,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isValueReadOnly
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isValueWriteOnly
   (JNIEnv * env, jobject object, jobject valueId)
 {
-	return OpenZWave::Manager::Get()->IsValueWriteOnly(getOzwValueId(env, valueId)) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsValueWriteOnly(getOzwValueId(env, valueId)));
 }
 
 /*
@@ -1016,7 +1027,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isValueWriteOnly
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isValueSet
   (JNIEnv * env, jobject object, jobject valueId)
 {
-	return OpenZWave::Manager::Get()->IsValueSet(getOzwValueId(env, valueId)) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsValueSet(getOzwValueId(env, valueId)));
 }
 
 /*
@@ -1027,7 +1038,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isValueSet
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_isValuePolled
   (JNIEnv * env, jobject object, jobject valueId)
 {
-	return OpenZWave::Manager::Get()->IsValuePolled(getOzwValueId(env, valueId)) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->IsValuePolled(getOzwValueId(env, valueId)));
 }
 
 /*
@@ -1039,14 +1050,14 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsBool
   (JNIEnv * env, jobject object, jobject valueId, jobject value)
 {
 	bool ozwValue;
-	jboolean result = OpenZWave::Manager::Get()->GetValueAsBool(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetValueAsBool(getOzwValueId(env, valueId), &ozwValue));
 	env->CallVoidMethod(
 		value,
 		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
 			findClass(env, "java/lang/Boolean"),
 			env->GetMethodID(findClass(env, "java/lang/Boolean"), "<init>", "(Z)V"),
-			ozwValue ? JNI_TRUE : JNI_FALSE
+			getJboolean(ozwValue)
 		)
 	);
 	return result;
@@ -1061,14 +1072,14 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsByte
   (JNIEnv * env, jobject object, jobject valueId, jobject value)
 {
 	uint8 ozwValue;
-	jboolean result = OpenZWave::Manager::Get()->GetValueAsByte(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetValueAsByte(getOzwValueId(env, valueId), &ozwValue));
 	env->CallVoidMethod(
 		value,
 		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
 			findClass(env, "java/lang/Byte"),
 			env->GetMethodID(findClass(env, "java/lang/Byte"), "<init>", "(B)V"),
-			(jbyte) ozwValue
+			getJbyte(ozwValue)
 		)
 	);
 	return result;
@@ -1083,14 +1094,14 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsFloat
   (JNIEnv * env, jobject object, jobject valueId, jobject value)
 {
 	float ozwValue;
-	jboolean result = OpenZWave::Manager::Get()->GetValueAsFloat(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetValueAsFloat(getOzwValueId(env, valueId), &ozwValue));
 	env->CallVoidMethod(
 		value,
 		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
 			findClass(env, "java/lang/Float"),
 			env->GetMethodID(findClass(env, "java/lang/Float"), "<init>", "(F)V"),
-			(jfloat) ozwValue
+			getJfloat(ozwValue)
 		)
 	);
 	return result;
@@ -1105,14 +1116,14 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsInt
   (JNIEnv * env, jobject object, jobject valueId, jobject value)
 {
 	int32 ozwValue;
-	jboolean result = OpenZWave::Manager::Get()->GetValueAsInt(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetValueAsInt(getOzwValueId(env, valueId), &ozwValue));
 	env->CallVoidMethod(
 		value,
 		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
 			findClass(env, "java/lang/Integer"),
 			env->GetMethodID(findClass(env, "java/lang/Integer"), "<init>", "(I)V"),
-			(jint) ozwValue
+			getJint(ozwValue)
 		)
 	);
 	return result;
@@ -1127,14 +1138,14 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsShort
   (JNIEnv * env, jobject object, jobject valueId, jobject value)
 {
 	int16 ozwValue;
-	jboolean result = OpenZWave::Manager::Get()->GetValueAsShort(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetValueAsShort(getOzwValueId(env, valueId), &ozwValue));
 	env->CallVoidMethod(
 		value,
 		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
 			findClass(env, "java/lang/Short"),
 			env->GetMethodID(findClass(env, "java/lang/Short"), "<init>", "(S)V"),
-			(jshort) ozwValue
+			getJshort(ozwValue)
 		)
 	);
 	return result;
@@ -1149,7 +1160,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsString
   (JNIEnv * env, jobject object, jobject valueId, jobject value)
 {
 	std::string ozwValue;
-	jboolean result = OpenZWave::Manager::Get()->GetValueAsString(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetValueAsString(getOzwValueId(env, valueId), &ozwValue));
 	env->CallVoidMethod(
 		value,
 		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
@@ -1168,13 +1179,13 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsRaw
 {
 	uint8 * ozwValue;
 	uint8 length;
-	jboolean result = OpenZWave::Manager::Get()->GetValueAsRaw(getOzwValueId(env, valueId), &ozwValue, &length) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetValueAsRaw(getOzwValueId(env, valueId), &ozwValue, &length));
 
-	jshortArray valueArray = env->NewShortArray((jsize) length);
+	jshortArray valueArray = env->NewShortArray(getJsize(length));
 	jshort * valueElements = env->GetShortArrayElements(valueArray, NULL);
 	for (int i = 0; i < length; ++i)
 	{
-	    valueElements[i] = (jshort) ozwValue[i];
+	    valueElements[i] = getJshort(ozwValue[i]);
 	}
 	env->ReleaseShortArrayElements(valueArray, valueElements, 0);
 
@@ -1197,7 +1208,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueListSelectionString
   (JNIEnv * env, jobject object, jobject valueId, jobject value)
 {
 	std::string ozwValue;
-	jboolean result = OpenZWave::Manager::Get()->GetValueListSelection(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetValueListSelection(getOzwValueId(env, valueId), &ozwValue));
 	env->CallVoidMethod(
 		value,
 		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
@@ -1215,14 +1226,14 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueListSelectionInt
   (JNIEnv * env, jobject object, jobject valueId, jobject value)
 {
 	int32 ozwValue;
-	jboolean result = OpenZWave::Manager::Get()->GetValueListSelection(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetValueListSelection(getOzwValueId(env, valueId), &ozwValue));
 	env->CallVoidMethod(
 		value,
 		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
 			findClass(env, "java/lang/Integer"),
 			env->GetMethodID(findClass(env, "java/lang/Integer"), "<init>", "(I)V"),
-			(jint) ozwValue
+			getJint(ozwValue)
 		)
 	);
 	return result;
@@ -1237,7 +1248,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueListItems
   (JNIEnv * env, jobject object, jobject valueId, jobject value)
 {
 	std::vector<std::string> ozwValue;
-	jboolean result = OpenZWave::Manager::Get()->GetValueListItems(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetValueListItems(getOzwValueId(env, valueId), &ozwValue));
 
     jmethodID addMethodId = env->GetMethodID(findClass(env, "java/util/List"), "add", "(Ljava/lang/Object;)Z");
     for(std::vector<std::string>::iterator it = ozwValue.begin(); it != ozwValue.end(); ++it)
@@ -1261,14 +1272,14 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueFloatPrecision
   (JNIEnv * env, jobject object, jobject valueId, jobject value)
 {
 	uint8 ozwValue;
-	jboolean result = OpenZWave::Manager::Get()->GetValueFloatPrecision(getOzwValueId(env, valueId), &ozwValue) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->GetValueFloatPrecision(getOzwValueId(env, valueId), &ozwValue));
 	env->CallVoidMethod(
 		value,
 		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
 			findClass(env, "java/lang/Short"),
 			env->GetMethodID(findClass(env, "java/lang/Short"), "<init>", "(S)V"),
-			(jshort) ozwValue
+			getJshort(ozwValue)
 		)
 	);
 	return result;
@@ -1282,7 +1293,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueFloatPrecision
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsBool
   (JNIEnv * env, jobject object, jobject valueId, jboolean value)
 {
-	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), (value == JNI_FALSE) ? false : true) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), getBool(value)));
 }
 
 /*
@@ -1293,7 +1304,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsBool
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsByte
   (JNIEnv * env, jobject object, jobject valueId, jshort value)
 {
-	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), (uint8) value) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), getUint8(value)));
 }
 
 /*
@@ -1304,7 +1315,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsByte
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsFloat
   (JNIEnv * env, jobject object, jobject valueId, jfloat value)
 {
-	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), (float) value) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), getFloat32(value)));
 }
 
 /*
@@ -1315,7 +1326,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsFloat
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsInt
   (JNIEnv * env, jobject object, jobject valueId, jint value)
 {
-	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), (int32) value) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), getInt32(value)));
 }
 
 /*
@@ -1326,7 +1337,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsInt
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsShort
   (JNIEnv * env, jobject object, jobject valueId, jshort value)
 {
-	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), (int16) value) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), getInt16(value)));
 }
 
 /*
@@ -1338,16 +1349,16 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsRaw
   (JNIEnv * env, jobject object, jobject valueId, jshortArray value)
 {
 	uint8 * ozwValue;
-	uint8 length = (uint8) env->GetArrayLength(value);
+	uint8 length = getUint8(env->GetArrayLength(value));
 
 	jshort * valueElements = env->GetShortArrayElements(value, NULL);
 	for (int i = 0; i < length; ++i)
 	{
-	    ozwValue[i] = (uint8) valueElements[i];
+	    ozwValue[i] = getUint8(valueElements[i]);
 	}
 	env->ReleaseShortArrayElements(value, valueElements, 0);
 
-	return OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), ozwValue, length) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), ozwValue, length));
 }
 
 /*
@@ -1359,7 +1370,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsString
   (JNIEnv * env, jobject object, jobject valueId, jstring value)
 {
 	const char * valueChars = env->GetStringUTFChars(value, NULL); 
-	jboolean result = OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), std::string(valueChars)) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), std::string(valueChars)));
 	env->ReleaseStringUTFChars(value, valueChars);
 	return result;
 }
@@ -1373,7 +1384,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueListSelection
   (JNIEnv * env, jobject object, jobject valueId, jstring selectedItem)
 {
 	const char * selectedItemChars = env->GetStringUTFChars(selectedItem, NULL); 
-	jboolean result = OpenZWave::Manager::Get()->SetValueListSelection(getOzwValueId(env, valueId), std::string(selectedItemChars)) ? JNI_TRUE : JNI_FALSE;
+	jboolean result = getJboolean(OpenZWave::Manager::Get()->SetValueListSelection(getOzwValueId(env, valueId), std::string(selectedItemChars)));
 	env->ReleaseStringUTFChars(selectedItem, selectedItemChars);
 	return result;
 }
@@ -1386,7 +1397,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueListSelection
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_refreshValue
   (JNIEnv * env, jobject object, jobject valueId)
 {
-	return OpenZWave::Manager::Get()->RefreshValue(getOzwValueId(env, valueId)) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->RefreshValue(getOzwValueId(env, valueId)));
 }
 
 /*
@@ -1397,7 +1408,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_refreshValue
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setChangeVerified
   (JNIEnv * env, jobject object, jobject valueId, jboolean verify)
 {
-	OpenZWave::Manager::Get()->SetChangeVerified(getOzwValueId(env, valueId), (verify == JNI_FALSE) ? false : true);
+	OpenZWave::Manager::Get()->SetChangeVerified(getOzwValueId(env, valueId), getBool(verify));
 }
 
 /*
@@ -1408,7 +1419,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_setChangeVerified
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_pressButton
   (JNIEnv * env, jobject object, jobject valueId)
 {
-	return OpenZWave::Manager::Get()->PressButton(getOzwValueId(env, valueId)) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->PressButton(getOzwValueId(env, valueId)));
 }
 
 /*
@@ -1419,7 +1430,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_pressButton
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_releaseButton
   (JNIEnv * env, jobject object, jobject valueId)
 {
-	return OpenZWave::Manager::Get()->ReleaseButton(getOzwValueId(env, valueId)) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->ReleaseButton(getOzwValueId(env, valueId)));
 }
 
 /*
@@ -1430,7 +1441,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_releaseButton
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_switchAllOn
   (JNIEnv * env, jobject object, jlong homeId)
 {
-	OpenZWave::Manager::Get()->SwitchAllOn((uint32) homeId);
+	OpenZWave::Manager::Get()->SwitchAllOn(getUint32(homeId));
 }
 
 /*
@@ -1441,7 +1452,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_switchAllOn
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_switchAllOff
   (JNIEnv * env, jobject object, jlong homeId)
 {
-	OpenZWave::Manager::Get()->SwitchAllOff((uint32) homeId);
+	OpenZWave::Manager::Get()->SwitchAllOff(getUint32(homeId));
 }
 
 /*
@@ -1452,7 +1463,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_switchAllOff
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setConfigParam
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jshort param, jint value, jshort size)
 {
-	return OpenZWave::Manager::Get()->SetConfigParam((uint32) homeId, (uint8) nodeId, (uint8) param, (int32) value, (uint8) size) ? JNI_TRUE : JNI_FALSE;
+	return getJboolean(OpenZWave::Manager::Get()->SetConfigParam(getUint32(homeId), getUint8(nodeId), getUint8(param), getInt32(value), getUint8(size)));
 }
 
 /*
@@ -1463,7 +1474,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setConfigParam
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setConfigParam__JSSI
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jshort param, jint value)
 {
-    return OpenZWave::Manager::Get()->SetConfigParam((uint32) homeId, (uint8) nodeId, (uint8) param, (int32) value) ? JNI_TRUE : JNI_FALSE;
+    return getJboolean(OpenZWave::Manager::Get()->SetConfigParam(getUint32(homeId), getUint8(nodeId), getUint8(param), getInt32(value)));
 }
 
 /*
@@ -1474,7 +1485,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setConfigParam__JSSI
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_requestConfigParam
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId, jshort param)
 {
-	OpenZWave::Manager::Get()->RequestConfigParam((uint32) homeId, (uint8) nodeId, (uint8) param);
+	OpenZWave::Manager::Get()->RequestConfigParam(getUint32(homeId), getUint8(nodeId), getUint8(param));
 }
 
 /*
@@ -1485,5 +1496,5 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_requestConfigParam
 JNIEXPORT void JNICALL Java_org_zwave4j_Manager_requestAllConfigParams
   (JNIEnv * env, jobject object, jlong homeId, jshort nodeId)
 {
-	OpenZWave::Manager::Get()->RequestAllConfigParams((uint32) homeId, (uint8) nodeId);
+	OpenZWave::Manager::Get()->RequestAllConfigParams(getUint32(homeId), getUint8(nodeId));
 }

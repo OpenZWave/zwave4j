@@ -14,6 +14,8 @@ uint16 inline getUint16(jint value) { return (uint16) value; }
 
 uint32 inline getUint32(jlong value) { return (uint32) value; }
 
+uint32 inline getUint32(jsize value) { return (uint32) value; }
+
 int8 inline getInt8(jbyte value) { return (int8) value; }
 
 int16 inline getInt16(jshort value) { return (int16) value; }
@@ -34,6 +36,8 @@ jshort inline getJshort(uint8 value) { return (jshort) value; }
 jint inline getJint(uint16 value) { return (jint) value; }
 
 jlong inline getJlong(uint32 value) { return (jlong) value; }
+
+jsize inline getJsize(uint32 value) { return (jsize) value; }
 
 jbyte inline getJbyte(int8 value) { return (jbyte) value; }
 

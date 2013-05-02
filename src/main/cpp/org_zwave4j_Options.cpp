@@ -53,7 +53,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Options_lock
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Options_addOptionBool
   (JNIEnv * env, jobject object, jstring name, jboolean defaultValue)
 {
-	return OpenZWave::Options::Get()->AddOptionBool(std::string(env->GetStringUTFChars(name, NULL)), (defaultValue == JNI_FALSE) ? false : true);
+	return OpenZWave::Options::Get()->AddOptionBool(std::string(env->GetStringUTFChars(name, NULL)), getBool(defaultValue));
 }
 
 /*
@@ -78,7 +78,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Options_addOptionString
 	return OpenZWave::Options::Get()->AddOptionString(
 		std::string(env->GetStringUTFChars(name, NULL)), 
 		std::string(env->GetStringUTFChars(defaultValue, NULL)), 
-		(append == JNI_FALSE) ? false : true
+		getBool(append)
 	);
 }
 

@@ -52,9 +52,7 @@ public class Manager {
 
     public native boolean enablePoll(ValueId valueId, short intensity);
     
-    public boolean enablePoll(ValueId valueId) {
-        return enablePoll(valueId, (short) 1);    
-    }
+    public native boolean enablePoll(ValueId valueId);
 
     public native boolean disablePoll(ValueId valueId);
 
