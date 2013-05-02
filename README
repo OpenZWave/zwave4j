@@ -6,17 +6,18 @@ Requirements:
 
 1. JDK 1.7+
 2. Gradle 1.5+
-3. GCC for *nix or MinGW for windows
+3. GCC (MinGW for Windows)
+4. OpenZwave (https://code.google.com/p/open-zwave/)
 
 Build:
 
 Build script is designed to be able to build under *nix and windows platforms with x86 and amd64 architectures.
-It supports GCC compiler under *nix and MinGW under windows.
-However, it was tested only on windows 7 amd64 with 64-bit MinGW (http://sourceforge.net/projects/mingwbuilds/).
+It supports only GCC compiler (MinGW under Windows).
+However, it was tested only on Windows 7 amd64 with 64-bit MinGW (http://sourceforge.net/projects/mingwbuilds/).
 
 1. Copy example.gradle.properties into gradle.properties.
-2. Download and compile OpenZwave library.
-3. Edit properties in gradle.properties:
+2. Edit properties in gradle.properties:
     'openZwaveDir' - path to OpenZwave library source directory.
     'openZwaveLibFile' - path to compiled OpenZwave library object file.
-4. Run 'gradle run' in console. It will compile native JNI library and java classes and run Main class.
+3. Run 'gradle run' in console. It will compile native JNI library and java classes and run Main class.
+4. Run 'gradle install' to install library into local maven repository for using zwave4j as a dependency in your other projects.
