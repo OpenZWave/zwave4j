@@ -1077,9 +1077,9 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsByte
 		value,
 		env->GetMethodID(findClass(env, "java/util/concurrent/atomic/AtomicReference"), "set", "(Ljava/lang/Object;)V"),
 		env->NewObject(
-			findClass(env, "java/lang/Byte"),
-			env->GetMethodID(findClass(env, "java/lang/Byte"), "<init>", "(B)V"),
-			getJbyte(ozwValue)
+			findClass(env, "java/lang/Short"),
+			env->GetMethodID(findClass(env, "java/lang/Short"), "<init>", "(S)V"),
+			getJshort(ozwValue)
 		)
 	);
 	return result;
