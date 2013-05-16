@@ -33,7 +33,7 @@ public class NativeLibraryLoader {
 
         libraryPath.append(fileSeparator);
 
-        if(architecture.equals("i386") || architecture.equals("i686")){
+        if(architecture.equals("i386") || architecture.equals("i686") || architecture.equals("x86")){
             libraryPath.append(X86_DIRECTORY_NAME);
         } else if(architecture.equals("amd64")){
             libraryPath.append(AMD_64_DIRECTORY_NAME);
@@ -52,6 +52,5 @@ public class NativeLibraryLoader {
             } catch (UnsatisfiedLinkError ignored) {
             }
         }
-
     }
 }

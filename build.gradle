@@ -11,6 +11,7 @@ mainClassName = 'org.zwave4j.Main'
 ext {
     openZwaveDir = project.openZwaveDir
     openZwaveLibFile = project.openZwaveLibFile
+    openZwaveConfigDir = project.openZwaveConfigDir
 
     javaHome = System.getenv('JAVA_HOME')
     nativeClasses = ['org.zwave4j.Manager', 'org.zwave4j.Options']
@@ -28,7 +29,7 @@ ext {
     }
 
     def architectureName = System.properties["os.arch"]
-    if (architectureName == "i386" || architectureName == "i686") {
+    if (architectureName == "i386" || architectureName == "i686" || architectureName == "x86") {
         architecture = "x86"
     } else if (architectureName == "amd64") {
         architecture = "amd64"
@@ -54,18 +55,21 @@ libraries {
             args openZwaveLibFile
             args "-lsetupapi"
             args (architecture == "amd64" ? "-m64" : (architecture == "x86" ? "-m32" : ""))
-            args "-g"
+            args "-Wl,--kill-at", "-g", "-static"
         }
     }
 }
 
 run {
     standardInput = System.in
-    jvmArgs = [
+    jvmArgs([
             "-Xdebug",
-            "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005",
-            "-Djava.library.path=\"${buildDir}/${nativeLibsDir}\""
-    ]
+            "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+    ])
+    systemProperties([
+            "openzwave.config.path" : openZwaveConfigDir,
+            "java.library.path" : "${buildDir}${System.properties["file.separator"]}${nativeLibsDir}"
+    ])
 }
 
 task generateNativeHeaders(type: Exec, dependsOn: classes) {

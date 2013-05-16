@@ -9,7 +9,7 @@ jclass findClass(JNIEnv * env, const char * name)
 {
     char * convertedName = (char *) malloc((strlen(name) + 1) * sizeof(char));
     strcpy(convertedName, name);
-    for (int i = 0; i < strlen(convertedName); i++)
+    for (size_t i = 0; i < strlen(convertedName); i++)
     {
         if (convertedName[i] == '/')
         {

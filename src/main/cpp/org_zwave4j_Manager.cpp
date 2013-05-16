@@ -166,12 +166,12 @@ jobject getValueId(JNIEnv * env, OpenZWave::ValueID const * ozwValueId)
 	return env->NewObject(
 		clazz,
 		env->GetMethodID(clazz, "<init>", "(JSLorg/zwave4j/ValueGenre;SSSLorg/zwave4j/ValueType;)V"),
-		ozwValueId->GetHomeId(),
-		ozwValueId->GetNodeId(),
+		getJlong(ozwValueId->GetHomeId()),
+		getJshort(ozwValueId->GetNodeId()),
 		getValueGenre(env, ozwValueId->GetGenre()),
-		ozwValueId->GetCommandClassId(),
-		ozwValueId->GetInstance(),
-		ozwValueId->GetIndex(),
+		getJshort(ozwValueId->GetCommandClassId()),
+		getJshort(ozwValueId->GetInstance()),
+		getJshort(ozwValueId->GetIndex()),
 		getValueType(env, ozwValueId->GetType())
 	);
 }
@@ -190,7 +190,7 @@ jobject getNotification(JNIEnv * env, OpenZWave::Notification const * ozwNotific
 		env->GetMethodID(clazz, "<init>", "(Lorg/zwave4j/NotificationType;Lorg/zwave4j/ValueId;S)V"),
 		getNotificationType(env, ozwNotification->GetType()),
 		getValueId(env, &ozwNotification->GetValueID()),
-		ozwNotification->GetByte()
+		getJshort(ozwNotification->GetByte())
 	);
 }
 
@@ -602,7 +602,7 @@ JNIEXPORT jlong JNICALL Java_org_zwave4j_Manager_getNodeNeighbors
 
     jshortArray neighborsArray = env->NewShortArray(getJsize(neighborsAmount));
 	jshort * neighborsArrayElements = env->GetShortArrayElements(neighborsArray, NULL);
-	for (int i = 0; i < neighborsAmount; ++i)
+	for (uint32 i = 0; i < neighborsAmount; ++i)
 	{
 	    neighborsArrayElements[i] = getJshort(ozwNodeNeighbors[i]);
 	}
@@ -1183,7 +1183,7 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_getValueAsRaw
 
 	jshortArray valueArray = env->NewShortArray(getJsize(length));
 	jshort * valueElements = env->GetShortArrayElements(valueArray, NULL);
-	for (int i = 0; i < length; ++i)
+	for (uint8 i = 0; i < length; ++i)
 	{
 	    valueElements[i] = getJshort(ozwValue[i]);
 	}
@@ -1348,17 +1348,18 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsShort
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Manager_setValueAsRaw
   (JNIEnv * env, jobject object, jobject valueId, jshortArray value)
 {
-	uint8 * ozwValue;
 	uint8 length = getUint8(env->GetArrayLength(value));
+	uint8 * ozwValue = new uint8[length];
 
 	jshort * valueElements = env->GetShortArrayElements(value, NULL);
-	for (int i = 0; i < length; ++i)
+	for (uint8 i = 0; i < length; ++i)
 	{
 	    ozwValue[i] = getUint8(valueElements[i]);
 	}
 	env->ReleaseShortArrayElements(value, valueElements, 0);
 
 	return getJboolean(OpenZWave::Manager::Get()->SetValue(getOzwValueId(env, valueId), ozwValue, length));
+	delete [] ozwValue;
 }
 
 /*

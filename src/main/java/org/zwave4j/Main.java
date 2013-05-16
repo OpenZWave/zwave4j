@@ -17,7 +17,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         NativeLibraryLoader.loadLibrary("zwave4j");
 
-        final Options options = Options.create("D:/private/projects/_3rd party/open-zwave/config", "", "");
+        final Options options = Options.create(System.getProperty("openzwave.config.path"), "", "");
         options.addOptionBool("ConsoleOutput", false);
         options.lock();
 
