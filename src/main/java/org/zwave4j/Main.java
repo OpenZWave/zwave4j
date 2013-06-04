@@ -17,7 +17,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         NativeLibraryLoader.loadLibrary("zwave4j");
 
-        final Options options = Options.create(System.getProperty("openzwave.config.path"), "", "");
+        final Options options = Options.create(System.getProperty("zwave4j.openZwaveConfigDir"), "", "");
         options.addOptionBool("ConsoleOutput", false);
         options.lock();
 
@@ -85,7 +85,9 @@ public class Main {
             }
         });
 
-        manager.addDriver("//./COM21");
+        String controllerPort = System.getProperty("zwave4j.zWaveControllerPort");
+
+        manager.addDriver(controllerPort);
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
@@ -106,7 +108,7 @@ public class Main {
 
         br.close();
 
-        manager.removeDriver("//./COM21");
+        manager.removeDriver(controllerPort);
         Manager.destroy();
 	    Options.destroy();
     }

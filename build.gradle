@@ -12,6 +12,7 @@ ext {
     openZwaveDir = project.openZwaveDir
     openZwaveLibFile = project.openZwaveLibFile
     openZwaveConfigDir = project.openZwaveConfigDir
+    zWaveControllerPort = project.zWaveControllerPort
 
     javaHome = System.getenv('JAVA_HOME')
     nativeClasses = ['org.zwave4j.Manager', 'org.zwave4j.Options']
@@ -20,16 +21,16 @@ ext {
     def osName = System.properties["os.name"]
     if (osName == "Linux") {
         os = "linux"
-    } else if (osName.startsWith("Win")) {
+    } else if (osName.startsWith("Windows")) {
         os = "windows"
-    } else if (osName == "SunOS"){
+    } else if (osName == "SunOS") {
         os = "solaris"
     } else if (osName == "Mac OS X") {
         os = "mac_os_x"
     }
 
     def architectureName = System.properties["os.arch"]
-    if (architectureName == "i386" || architectureName == "i686" || architectureName == "x86") {
+    if (architectureName.endsWith("86")) {
         architecture = "x86"
     } else if (architectureName == "amd64") {
         architecture = "amd64"
@@ -42,10 +43,11 @@ repositories {
 }
 
 libraries {
-	main {
+    main {
         spec {
             includes(files("${javaHome}/include"))
             includes(files("${javaHome}/include/win32"))
+            includes(files("${javaHome}/include/linux"))
             includes(files("${openZwaveDir}/cpp/src"))
             includes(files("${openZwaveDir}/cpp/src/value_classes"))
             includes(files("${openZwaveDir}/cpp/src/command_classes"))
@@ -53,9 +55,19 @@ libraries {
             includes(files("${openZwaveDir}/cpp/src/platform/unix"))
             includes(files("${openZwaveDir}/cpp/src/platform/windows"))
             args openZwaveLibFile
-            args "-lsetupapi"
-            args (architecture == "amd64" ? "-m64" : (architecture == "x86" ? "-m32" : ""))
-            args "-Wl,--kill-at", "-g", "-static"
+            args "-static"
+            if (architecture == "amd64") {
+                args "-m64"
+            }
+            if (architecture == "x86") {
+                args "-m32"
+            }
+            if (os == "windows") {
+                args "-lsetupapi"
+                if (architecture == "x86") {
+                    args "-Wl,--kill-at"
+                }
+            }
         }
     }
 }
@@ -67,8 +79,9 @@ run {
             "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
     ])
     systemProperties([
-            "openzwave.config.path" : openZwaveConfigDir,
-            "java.library.path" : "${buildDir}${System.properties["file.separator"]}${nativeLibsDir}"
+            "java.library.path" : "${buildDir}${System.properties["file.separator"]}${nativeLibsDir}",
+            "zwave4j.openZwaveConfigDir" : openZwaveConfigDir,
+            "zwave4j.zWaveControllerPort" : "${zWaveControllerPort}"
     ])
 }
 
