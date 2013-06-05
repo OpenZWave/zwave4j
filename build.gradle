@@ -1,22 +1,22 @@
-apply plugin: 'maven'
-apply plugin: 'java'
-apply plugin: 'application'
-apply plugin: 'idea'
-apply plugin: 'cpp-lib'
+apply plugin: "maven"
+apply plugin: "java"
+apply plugin: "application"
+apply plugin: "idea"
+apply plugin: "cpp-lib"
 
-group = 'org.zwave4j'
-version = '0.1'
-mainClassName = 'org.zwave4j.Main'
+group = "org.zwave4j"
+version = "0.1"
+mainClassName = "org.zwave4j.Main"
 
 ext {
-    openZwaveDir = project.openZwaveDir
-    openZwaveLibFile = project.openZwaveLibFile
-    openZwaveConfigDir = project.openZwaveConfigDir
+    openZWaveDir = project.openZWaveDir
+    openZWaveLibFile = project.openZWaveLibFile
+    openZWaveConfigDir = project.openZWaveConfigDir
     zWaveControllerPort = project.zWaveControllerPort
 
-    javaHome = System.getenv('JAVA_HOME')
-    nativeClasses = ['org.zwave4j.Manager', 'org.zwave4j.Options']
-    nativeLibsDir = 'native-libs'
+    javaHome = System.getenv("JAVA_HOME")
+    nativeClasses = ["org.zwave4j.Manager", "org.zwave4j.Options"]
+    nativeLibsDir = "native-libs"
 
     def osName = System.properties["os.name"]
     if (osName == "Linux") {
@@ -48,13 +48,13 @@ libraries {
             includes(files("${javaHome}/include"))
             includes(files("${javaHome}/include/win32"))
             includes(files("${javaHome}/include/linux"))
-            includes(files("${openZwaveDir}/cpp/src"))
-            includes(files("${openZwaveDir}/cpp/src/value_classes"))
-            includes(files("${openZwaveDir}/cpp/src/command_classes"))
-            includes(files("${openZwaveDir}/cpp/src/platform"))
-            includes(files("${openZwaveDir}/cpp/src/platform/unix"))
-            includes(files("${openZwaveDir}/cpp/src/platform/windows"))
-            args openZwaveLibFile
+            includes(files("${openZWaveDir}/cpp/src"))
+            includes(files("${openZWaveDir}/cpp/src/value_classes"))
+            includes(files("${openZWaveDir}/cpp/src/command_classes"))
+            includes(files("${openZWaveDir}/cpp/src/platform"))
+            includes(files("${openZWaveDir}/cpp/src/platform/unix"))
+            includes(files("${openZWaveDir}/cpp/src/platform/windows"))
+            args openZWaveLibFile
             args "-static"
             if (architecture == "amd64") {
                 args "-m64"
@@ -72,23 +72,10 @@ libraries {
     }
 }
 
-run {
-    standardInput = System.in
-    jvmArgs([
-            "-Xdebug",
-            "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
-    ])
-    systemProperties([
-            "java.library.path" : "${buildDir}${System.properties["file.separator"]}${nativeLibsDir}",
-            "zwave4j.openZwaveConfigDir" : openZwaveConfigDir,
-            "zwave4j.zWaveControllerPort" : "${zWaveControllerPort}"
-    ])
-}
-
 task generateNativeHeaders(type: Exec, dependsOn: classes) {
-    commandLine 'javah'
-    args '-d', 'src/main/headers'
-    args '-classpath', sourceSets.main.runtimeClasspath.asPath
+    commandLine "javah"
+    args "-d", "src/main/headers"
+    args "-classpath", sourceSets.main.runtimeClasspath.asPath
     args nativeClasses
 }
 
@@ -99,7 +86,21 @@ task copyNativeLibs(type: Copy, dependsOn: compileMain) {
     into "${buildDir}/${nativeLibsDir}/${os}/${architecture}"
 }
 
-run.dependsOn copyNativeLibs
+jar.dependsOn copyNativeLibs
+
+run {
+    standardInput = System.in
+    dependsOn copyNativeLibs
+    jvmArgs([
+            "-Xdebug",
+            "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+    ])
+    systemProperties([
+            "zwave4j.nativeLibsDir" : "${buildDir}/${nativeLibsDir}",
+            "zwave4j.openZWaveConfigDir" : openZWaveConfigDir,
+            "zwave4j.zWaveControllerPort" : "${zWaveControllerPort}"
+    ])
+}
 
 installApp {
     dependsOn copyNativeLibs
@@ -110,12 +111,12 @@ installApp {
 
 task nativeLibsZip(type: Zip, dependsOn: copyNativeLibs) {
     from "${buildDir}/${nativeLibsDir}"
-    classifier = 'native_libs'
+    classifier = "native_libs"
 }
 
 task srcJar(type: Jar) {
     from "src/main/java"
-    classifier = 'sources'
+    classifier = "sources"
 }
 
 artifacts {

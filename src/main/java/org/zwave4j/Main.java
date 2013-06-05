@@ -15,9 +15,9 @@ public class Main {
     private static boolean ready = false;
 
     public static void main(String[] args) throws IOException {
-        NativeLibraryLoader.loadLibrary("zwave4j");
+        NativeLibraryLoader.loadLibrary(ZWave4j.LIBRARY_NAME);
 
-        final Options options = Options.create(System.getProperty("zwave4j.openZwaveConfigDir"), "", "");
+        final Options options = Options.create(System.getProperty("zwave4j.openZWaveConfigDir"), "", "");
         options.addOptionBool("ConsoleOutput", false);
         options.lock();
 

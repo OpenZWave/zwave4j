@@ -18,8 +18,10 @@ public class NativeLibraryLoader {
         String osName = System.getProperty("os.name");
         String architecture = System.getProperty("os.arch");
         String fileSeparator = System.getProperty("file.separator");
+        String nativeLibrariesDirectory = System.getProperty("zwave4j.nativeLibsDir");
 
         StringBuilder libraryPath = new StringBuilder();
+        libraryPath.append(nativeLibrariesDirectory).append(fileSeparator);
 
         if (osName.equals("Linux")) {
             libraryPath.append(LINUX_DIRECTORY_NAME);
@@ -41,16 +43,6 @@ public class NativeLibraryLoader {
 
         libraryPath.append(fileSeparator).append(System.mapLibraryName(libraryName));
 
-        String[] nativeLibraryPaths = System.getProperty("java.library.path").split(";");
-        for (String nativeLibraryPath : nativeLibraryPaths) {
-            if (!nativeLibraryPath.endsWith(fileSeparator)) {
-                nativeLibraryPath = nativeLibraryPath + fileSeparator;
-            }
-            try {
-                System.load(nativeLibraryPath + libraryPath.toString());
-                break;
-            } catch (UnsatisfiedLinkError ignored) {
-            }
-        }
+        System.load(libraryPath.toString());
     }
 }
