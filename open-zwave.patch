@@ -1,6 +1,6 @@
 Index: cpp/src/Defs.h
 ===================================================================
---- cpp/src/Defs.h	(revision 661)
+--- cpp/src/Defs.h	(revision 663)
 +++ cpp/src/Defs.h	(working copy)
 @@ -28,6 +28,7 @@
  #ifndef _Defs_H
@@ -10,9 +10,46 @@ Index: cpp/src/Defs.h
  #include <list>
  
  #ifdef NULL
+Index: cpp/src/platform/windows/LogImpl.cpp
+===================================================================
+--- cpp/src/platform/windows/LogImpl.cpp	(revision 663)
++++ cpp/src/platform/windows/LogImpl.cpp	(working copy)
+@@ -30,6 +30,32 @@
+ #include "Defs.h"
+ #include "LogImpl.h"
+ 
++#ifdef MINGW
++
++#define vsprintf_s vsnprintf
++
++#define strcpy_s(DEST, NUM, SOURCE) strncpy(DEST, SOURCE, NUM)
++
++errno_t fopen_s(FILE** pFile, const char *filename, const char *mode)
++{
++    if (!pFile)
++    {
++        _set_errno(EINVAL);
++        return EINVAL;
++    }
++    
++    *pFile = fopen(filename, mode);
++    
++    if (!*pFile)
++    {
++        return errno;
++    }
++    
++    return 0;
++}
++
++#endif
++
+ using namespace OpenZWave;
+ 
+ //-----------------------------------------------------------------------------
 Index: cpp/src/platform/windows/TimeStampImpl.cpp
 ===================================================================
---- cpp/src/platform/windows/TimeStampImpl.cpp	(revision 661)
+--- cpp/src/platform/windows/TimeStampImpl.cpp	(revision 663)
 +++ cpp/src/platform/windows/TimeStampImpl.cpp	(working copy)
 @@ -61,7 +61,11 @@
  	int32 _milliseconds	// = 0
@@ -50,7 +87,7 @@ Index: cpp/src/platform/windows/TimeStampImpl.cpp
  }
 Index: cpp/src/platform/windows/TimeStampImpl.h
 ===================================================================
---- cpp/src/platform/windows/TimeStampImpl.h	(revision 661)
+--- cpp/src/platform/windows/TimeStampImpl.h	(revision 663)
 +++ cpp/src/platform/windows/TimeStampImpl.h	(working copy)
 @@ -28,6 +28,7 @@
  #ifndef _TimeStampImpl_H
