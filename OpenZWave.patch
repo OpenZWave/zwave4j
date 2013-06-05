@@ -51,49 +51,28 @@ Index: cpp/src/platform/windows/TimeStampImpl.cpp
 ===================================================================
 --- cpp/src/platform/windows/TimeStampImpl.cpp	(revision 663)
 +++ cpp/src/platform/windows/TimeStampImpl.cpp	(working copy)
-@@ -61,7 +61,11 @@
+@@ -61,7 +61,7 @@
  	int32 _milliseconds	// = 0
  )
  {
-+#ifdef __MINGW32__
+-	int64 offset = ((int64)_milliseconds) * 10000i64;	// Timestamp is stored in 100ns steps.
 +	int64 offset = ((int64)_milliseconds) * 10000LL;	// Timestamp is stored in 100ns steps.
-+#else
- 	int64 offset = ((int64)_milliseconds) * 10000i64;	// Timestamp is stored in 100ns steps.
-+#endif
  	
  	GetSystemTimeAsFileTime( (FILETIME*)&m_stamp );
  	m_stamp += offset;
-@@ -78,7 +82,11 @@
+@@ -78,7 +78,7 @@
  	int64 now;
  	GetSystemTimeAsFileTime( (FILETIME*)&now );
  
-+#ifdef __MINGW32__
+-	return (int32)( ( m_stamp - now ) / 10000i64 );
 +	return (int32)( ( m_stamp - now ) / 10000LL );
-+#else
- 	return (int32)( ( m_stamp - now ) / 10000i64 );
-+#endif
  }
  
  //-----------------------------------------------------------------------------
-@@ -109,5 +117,9 @@
+@@ -109,5 +109,5 @@
  	TimeStampImpl const& _other
  )
  {
-+#ifdef __MINGW32__
+-	return (int32)( ( m_stamp - _other.m_stamp ) / 10000i64 );
 +	return (int32)( ( m_stamp - _other.m_stamp ) / 10000LL );
-+#else
- 	return (int32)( ( m_stamp - _other.m_stamp ) / 10000i64 );
-+#endif
  }
-Index: cpp/src/platform/windows/TimeStampImpl.h
-===================================================================
---- cpp/src/platform/windows/TimeStampImpl.h	(revision 663)
-+++ cpp/src/platform/windows/TimeStampImpl.h	(working copy)
-@@ -28,6 +28,7 @@
- #ifndef _TimeStampImpl_H
- #define _TimeStampImpl_H
- 
-+#include <string>
- #include "Defs.h"
- 
- namespace OpenZWave
