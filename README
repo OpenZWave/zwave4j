@@ -1,13 +1,13 @@
-ZWave4j - java wrapper for OpenZWave (https://code.google.com/p/open-zwave) library.
+ZWave4J - java wrapper for OpenZWave (https://code.google.com/p/open-zwave) library.
 
 The goal is to provide to java the same API as OpenZWave has.
-Besides the wrapper ZWave4j has a simple executable 'Main' class which demonstrates how to work with ZWave4j.
+Besides the wrapper ZWave4J has a simple executable 'Main' class which demonstrates how to work with ZWave4J.
 
-ZWave4j supports *nix and Windows OS, x86 and amd64 architectures, GCC (MinGW for Windows) compiler.
+ZWave4J supports *nix and Windows OS, x86 and amd64 architectures, GCC (MinGW for Windows) compiler.
 It was tested on Windows 7 amd64, Windows XP x86 and Ubuntu 12.04 x86.
 For Windows this build of MinGW was used: http://sourceforge.net/projects/mingwbuilds.
 
-Requirements:
+Requirements for build:
 
 1. JDK 1.7+
 2. Gradle 1.5+
@@ -27,11 +27,13 @@ Preparations:
 
 Build:
 
-1. Run 'gradle jar' in console. It will compile native JNI library and java classes and put it into 'build/libs' and 'build/native-libs' directories.
+1. Run 'gradle jar' in console. It will compile native JNI library and java classes, assemble 'jar' archive and put it into 'build/libs' directory.
 
 Usage:
 
 a. Run 'gradle run' in console. It will execute sample 'Main' class.
-b. Run 'gradle install' to install library into local maven repository for using ZWave4j as a library in your other projects.
-c. Execute ZWave4j 'Main' class manually from 'build/libs' directory:
-java -Dzwave4j.nativeLibsDir="C:/zwave4j/build/native-libs" -Dzwave4j.openZWaveConfigDir="C:/open-zwave/config" -Dzwave4j.zWaveControllerPort="//./COM1" -cp zwave4j-0.1.jar org.zwave4j.Main
+b. Run 'gradle installApp' to install application with start scripts into 'build/install/zwave4j', then you can start it manually from 'build/install/zwave4j/bin':
+    zwave4j.bat "C:/open-zwave/config" "//./COM1"
+c. Run 'gradle install' to install library into local maven repository for using ZWave4J as a library in your other projects.
+d. Execute ZWave4J 'Main' class manually from 'build/libs' directory:
+    java -cp zwave4j-0.1.jar org.zwave4j.Main "C:/open-zwave/config" "//./COM1"

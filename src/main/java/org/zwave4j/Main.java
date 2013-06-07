@@ -15,9 +15,9 @@ public class Main {
     private static boolean ready = false;
 
     public static void main(String[] args) throws IOException {
-        NativeLibraryLoader.loadLibrary(ZWave4j.LIBRARY_NAME);
+        NativeLibraryLoader.loadLibrary(ZWave4j.LIBRARY_NAME, ZWave4j.class);
 
-        final Options options = Options.create(System.getProperty("zwave4j.openZWaveConfigDir"), "", "");
+        final Options options = Options.create(args[0], "", "");
         options.addOptionBool("ConsoleOutput", false);
         options.lock();
 
@@ -85,7 +85,7 @@ public class Main {
             }
         });
 
-        String controllerPort = System.getProperty("zwave4j.zWaveControllerPort");
+        String controllerPort = args[1];
 
         manager.addDriver(controllerPort);
 

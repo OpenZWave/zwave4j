@@ -25,8 +25,8 @@ ext {
         os = "windows"
     } else if (osName == "SunOS") {
         os = "solaris"
-    } else if (osName == "Mac OS X") {
-        os = "mac_os_x"
+    } else if (osName.endsWith("OS X")) {
+        os = "os_x"
     }
 
     def architectureName = System.properties["os.arch"]
@@ -81,37 +81,30 @@ task generateNativeHeaders(type: Exec, dependsOn: classes) {
 
 compileMain.dependsOn generateNativeHeaders
 
-task copyNativeLibs(type: Copy, dependsOn: compileMain) {
-    from "${buildDir}/binaries"
-    into "${buildDir}/${nativeLibsDir}/${os}/${architecture}"
+jar {
+    dependsOn compileMain
+    from "${buildDir}/binaries", {
+        into "${nativeLibsDir}/${os}/${architecture}"
+    }
 }
 
-jar.dependsOn copyNativeLibs
-
 run {
+    dependsOn compileMain
     standardInput = System.in
-    dependsOn copyNativeLibs
+    doFirst {
+        copy {
+            from "${buildDir}/binaries"
+            into "${buildDir}/classes/main/${nativeLibsDir}/${os}/${architecture}"
+        }
+    }
     jvmArgs([
             "-Xdebug",
             "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
     ])
-    systemProperties([
-            "zwave4j.nativeLibsDir" : "${buildDir}/${nativeLibsDir}",
-            "zwave4j.openZWaveConfigDir" : openZWaveConfigDir,
-            "zwave4j.zWaveControllerPort" : "${zWaveControllerPort}"
+    args([
+            openZWaveConfigDir,
+            zWaveControllerPort
     ])
-}
-
-installApp {
-    dependsOn copyNativeLibs
-    from "${buildDir}/${nativeLibsDir}", {
-        into "lib/${nativeLibsDir}"
-    }
-}
-
-task nativeLibsZip(type: Zip, dependsOn: copyNativeLibs) {
-    from "${buildDir}/${nativeLibsDir}"
-    classifier = "native_libs"
 }
 
 task srcJar(type: Jar) {
@@ -120,6 +113,5 @@ task srcJar(type: Jar) {
 }
 
 artifacts {
-    archives nativeLibsZip
     archives srcJar
 }

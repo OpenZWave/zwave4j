@@ -1,5 +1,6 @@
 package org.zwave4j;
 
+import java.io.*;
 import java.util.StringTokenizer;
 
 /**
@@ -10,39 +11,89 @@ public class NativeLibraryLoader {
     public static final String WINDOWS_DIRECTORY_NAME = "windows";
     public static final String LINUX_DIRECTORY_NAME = "linux";
     public static final String SOLARIS_DIRECTORY_NAME = "solaris";
-    public static final String MAC_OS_X_DIRECTORY_NAME = "mac_os_x";
+    public static final String OS_X_DIRECTORY_NAME = "os_x";
     public static final String X86_DIRECTORY_NAME = "x86";
     public static final String AMD_64_DIRECTORY_NAME = "amd64";
 
-    public static void loadLibrary(String libraryName) {
+    private static final String TEMP_FILE_PREFIX = "native-lib-";
+
+    public static void loadLibrary(String libraryName, Class clazz) {
+        String libraryPath = getLibraryPath(libraryName);
+
+        File tempLibraryFile;
+        try (InputStream libraryStream = clazz != null ? clazz.getResourceAsStream(libraryPath) : ClassLoader.getSystemResourceAsStream(libraryPath)) {
+            if (libraryStream == null) {
+                throw new RuntimeException(String.format("Library not found %s", libraryPath));
+            }
+
+            tempLibraryFile = File.createTempFile(TEMP_FILE_PREFIX, null);
+            tempLibraryFile.deleteOnExit();
+
+            try (OutputStream tempLibraryStream = new FileOutputStream(tempLibraryFile)) {
+                int len;
+                byte[] buffer = new byte[8192];
+                while ((len = libraryStream.read(buffer)) > -1) {
+                    tempLibraryStream.write(buffer, 0, len);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.load(tempLibraryFile.getAbsolutePath());
+
+        //noinspection ResultOfMethodCallIgnored
+        tempLibraryFile.delete();
+    }
+
+    private static String getLibraryPath(String libraryName) {
+        StringBuilder libraryPathBuilder = new StringBuilder("/native-libs/");
+
         String osName = System.getProperty("os.name");
+        if (isLinux(osName)) {
+            libraryPathBuilder.append(LINUX_DIRECTORY_NAME);
+        } else if (isWindows(osName)) {
+            libraryPathBuilder.append(WINDOWS_DIRECTORY_NAME);
+        } else if (isSunOS(osName)) {
+            libraryPathBuilder.append(SOLARIS_DIRECTORY_NAME);
+        } else if (isOSX(osName)) {
+            libraryPathBuilder.append(OS_X_DIRECTORY_NAME);
+        }
+
+        libraryPathBuilder.append('/');
+
         String architecture = System.getProperty("os.arch");
-        String fileSeparator = System.getProperty("file.separator");
-        String nativeLibrariesDirectory = System.getProperty("zwave4j.nativeLibsDir");
-
-        StringBuilder libraryPath = new StringBuilder();
-        libraryPath.append(nativeLibrariesDirectory).append(fileSeparator);
-
-        if (osName.equals("Linux")) {
-            libraryPath.append(LINUX_DIRECTORY_NAME);
-        } else if (osName.startsWith("Windows")) {
-            libraryPath.append(WINDOWS_DIRECTORY_NAME);
-        } else if (osName.equals("SunOS")) {
-            libraryPath.append(SOLARIS_DIRECTORY_NAME);
-        } else if (osName.equals("Mac OS X")) {
-            libraryPath.append(MAC_OS_X_DIRECTORY_NAME);
+        if (isX86(architecture)) {
+            libraryPathBuilder.append(X86_DIRECTORY_NAME);
+        } else if (isAmd64(architecture)) {
+            libraryPathBuilder.append(AMD_64_DIRECTORY_NAME);
         }
 
-        libraryPath.append(fileSeparator);
+        libraryPathBuilder.append('/').append(System.mapLibraryName(libraryName));
+        return libraryPathBuilder.toString();
+    }
 
-        if (architecture.endsWith("86")) {
-            libraryPath.append(X86_DIRECTORY_NAME);
-        } else if (architecture.equals("amd64")) {
-            libraryPath.append(AMD_64_DIRECTORY_NAME);
-        }
+    private static boolean isLinux(String osName) {
+        return osName.equals("Linux");
+    }
 
-        libraryPath.append(fileSeparator).append(System.mapLibraryName(libraryName));
+    private static boolean isWindows(String osName) {
+        return osName.startsWith("Windows");
+    }
 
-        System.load(libraryPath.toString());
+    private static boolean isSunOS(String osName) {
+        return osName.equals("SunOS");
+    }
+
+    private static boolean isOSX(String osName) {
+        return osName.endsWith("OS X");
+    }
+
+    private static boolean isX86(String architecture) {
+        return architecture.endsWith("86");
+    }
+
+    private static boolean isAmd64(String architecture) {
+        return architecture.equals("amd64");
     }
 }
