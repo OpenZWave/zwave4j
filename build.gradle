@@ -55,7 +55,6 @@ libraries {
             includes(files("${openZWaveDir}/cpp/src/platform/unix"))
             includes(files("${openZWaveDir}/cpp/src/platform/windows"))
             args openZWaveLibFile
-            args "-static"
             if (architecture == "amd64") {
                 args "-m64"
             }
@@ -63,6 +62,7 @@ libraries {
                 args "-m32"
             }
             if (os == "windows") {
+                args "-static"
                 args "-lsetupapi"
                 if (architecture == "x86") {
                     args "-Wl,--kill-at"
