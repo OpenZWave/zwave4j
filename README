@@ -9,10 +9,10 @@ For Windows this build of MinGW was used: http://sourceforge.net/projects/mingwb
 
 Requirements for build:
 
-1. JDK 1.7+
-2. Gradle 1.5+
+1. JDK 1.7+ (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+2. Gradle 1.5+ (http://www.gradle.org/downloads)
 3. GCC (MinGW for Windows)
-4. OpenZWave
+4. OpenZWave (last tested revision: 663) (https://code.google.com/p/open-zwave)
 
 Preparations:
 
