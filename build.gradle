@@ -16,7 +16,7 @@ ext {
 
     javaHome = System.getenv("JAVA_HOME")
     nativeClasses = ["org.zwave4j.Manager", "org.zwave4j.Options"]
-    nativeLibsDir = "native-libs"
+    nativeLibsDir = "native_libs"
 
     def osName = System.properties["os.name"]
     if (osName == "Linux") {
@@ -73,30 +73,29 @@ libraries {
 }
 
 task generateNativeHeaders(type: Exec, dependsOn: classes) {
+    inputs.dir(sourceSets.main.output.classesDir)
+    outputs.files(cpp.sourceSets.main.exportedHeaders.files)
     commandLine "javah"
-    args "-d", "src/main/headers"
+    args "-d", cpp.sourceSets.main.exportedHeaders.srcDirs.iterator()[0]
     args "-classpath", sourceSets.main.runtimeClasspath.asPath
     args nativeClasses
 }
 
 compileMain.dependsOn generateNativeHeaders
 
-jar {
-    dependsOn compileMain
+task copyNativeLibs(type: Copy, dependsOn: compileMain) {
+    into "${sourceSets.main.output.classesDir}/${nativeLibsDir}"
+    from "${projectDir}/${nativeLibsDir}"
     from "${buildDir}/binaries", {
-        into "${nativeLibsDir}/${os}/${architecture}"
+        into "${os}/${architecture}"
     }
 }
 
+jar.dependsOn copyNativeLibs
+
 run {
-    dependsOn compileMain
+    dependsOn copyNativeLibs
     standardInput = System.in
-    doFirst {
-        copy {
-            from "${buildDir}/binaries"
-            into "${buildDir}/classes/main/${nativeLibsDir}/${os}/${architecture}"
-        }
-    }
     jvmArgs([
             "-Xdebug",
             "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
@@ -108,7 +107,7 @@ run {
 }
 
 task srcJar(type: Jar) {
-    from "src/main/java"
+    from sourceSets.main.java.srcDirs
     classifier = "sources"
 }
 

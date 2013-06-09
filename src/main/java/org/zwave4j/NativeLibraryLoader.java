@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
  */
 public class NativeLibraryLoader {
 
+    public static final String NATIVE_LIBS_DIRECTORY_NAME = "native_libs";
     public static final String WINDOWS_DIRECTORY_NAME = "windows";
     public static final String LINUX_DIRECTORY_NAME = "linux";
     public static final String SOLARIS_DIRECTORY_NAME = "solaris";
@@ -47,7 +48,7 @@ public class NativeLibraryLoader {
     }
 
     private static String getLibraryPath(String libraryName) {
-        StringBuilder libraryPathBuilder = new StringBuilder("/native-libs/");
+        StringBuilder libraryPathBuilder = new StringBuilder("/" + NATIVE_LIBS_DIRECTORY_NAME + "/");
 
         String osName = System.getProperty("os.name");
         if (isLinux(osName)) {
