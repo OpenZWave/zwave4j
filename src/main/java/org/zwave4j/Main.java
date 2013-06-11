@@ -27,45 +27,17 @@ public class Main {
             public void onNotification(Notification notification) {
                 switch (notification.getType()) {
                     case DRIVER_READY:
-                        System.out.println(String.format("Driver ready, home id: %d", notification.getHomeId()));
+                        System.out.println(String.format("Driver ready\n" +
+                                "\thome id: %d",
+                                notification.getHomeId()
+                        ));
                         homeId = notification.getHomeId();
                         break;
                     case DRIVER_FAILED:
-                        System.out.println(String.format("Driver failed, home id: %d", notification.getHomeId()));
+                        System.out.println("Driver failed");
                         break;
                     case DRIVER_RESET:
-                        System.out.println(String.format("Driver reset, home id: %d", notification.getHomeId()));
-                        break;
-                    case NODE_NEW:
-                        System.out.println(String.format("Node new, node id: %d", notification.getNodeId()));
-                        break;
-                    case NODE_ADDED:
-                        System.out.println(String.format("Node added, node id: %d", notification.getNodeId()));
-                        break;
-                    case NODE_REMOVED:
-                        System.out.println(String.format("Node removed, node id: %d", notification.getNodeId()));
-                        break;
-                    case ESSENTIAL_NODE_QUERIES_COMPLETE:
-                        System.out.println(String.format("Node essential queries complete, node id: %d", notification.getNodeId()));
-                        break;
-                    case NODE_QUERIES_COMPLETE:
-                        System.out.println(String.format("Node queries complete, node id: %d", notification.getNodeId()));
-                        break;
-                    case NODE_EVENT:
-                        System.out.println(String.format("Node event %d, node id: %d", notification.getEvent(), notification.getNodeId()));
-                        break;
-                    case VALUE_ADDED:
-                        System.out.println(String.format("Value added, node id: %d",  notification.getNodeId()));
-                        break;
-                    case VALUE_REMOVED:
-                        System.out.println(String.format("Value removed, node id: %d",  notification.getNodeId()));
-                        break;
-                    case VALUE_CHANGED:
-                        System.out.println(String.format("Value changed, node id: %d",  notification.getNodeId()));
-                        System.out.println(getValue(notification.getValueId()));
-                        break;
-                    case VALUE_REFRESHED:
-                        System.out.println(String.format("Value refreshed, node id: %d",  notification.getNodeId()));
+                        System.out.println("Driver reset");
                         break;
                     case AWAKE_NODES_QUERIES:
                         System.out.println("Awake nodes queried");
@@ -77,6 +49,166 @@ public class Main {
                         break;
                     case ALL_NODES_QUERIED_SOME_DEAD:
                         System.out.println("All nodes queried some dead");
+                        break;
+                    case POLLING_ENABLED:
+                        System.out.println("Polling enabled");
+                        break;
+                    case POLLING_DISABLED:
+                        System.out.println("Polling disabled");
+                        break;
+                    case NODE_NEW:
+                        System.out.println(String.format("Node new\n" +
+                                "\tnode id: %d",
+                                notification.getNodeId()
+                        ));
+                        break;
+                    case NODE_ADDED:
+                        System.out.println(String.format("Node added\n" +
+                                "\tnode id: %d",
+                                notification.getNodeId()
+                        ));
+                        break;
+                    case NODE_REMOVED:
+                        System.out.println(String.format("Node removed\n" +
+                                "\tnode id: %d",
+                                notification.getNodeId()
+                        ));
+                        break;
+                    case ESSENTIAL_NODE_QUERIES_COMPLETE:
+                        System.out.println(String.format("Node essential queries complete\n" +
+                                "\tnode id: %d",
+                                notification.getNodeId()
+                        ));
+                        break;
+                    case NODE_QUERIES_COMPLETE:
+                        System.out.println(String.format("Node queries complete\n" +
+                                "\tnode id: %d",
+                                notification.getNodeId()
+                        ));
+                        break;
+                    case NODE_EVENT:
+                        System.out.println(String.format("Node event\n" +
+                                "\tnode id: %d\n" +
+                                "\tevent id: %d",
+                                notification.getNodeId(),
+                                notification.getEvent()
+                        ));
+                        break;
+                    case NODE_NAMING:
+                        System.out.println(String.format("Node naming\n" +
+                                "\tnode id: %d",
+                                notification.getNodeId()
+                        ));
+                        break;
+                    case NODE_PROTOCOL_INFO:
+                        System.out.println(String.format("Node protocol info\n" +
+                                "\tnode id: %d\n" +
+                                "\ttype: %s",
+                                notification.getNodeId(),
+                                manager.getNodeType(notification.getHomeId(), notification.getNodeId())
+                        ));
+                        break;
+                    case VALUE_ADDED:
+                        System.out.println(String.format("Value added\n" +
+                                "\tnode id: %d\n" +
+                                "\tcommand class: %d\n" +
+                                "\tinstance: %d\n" +
+                                "\tindex: %d\n" +
+                                "\tgenre: %s\n" +
+                                "\ttype: %s\n" +
+                                "\tlabel: %s\n" +
+                                "\tvalue: %s",
+                                notification.getNodeId(),
+                                notification.getValueId().getCommandClassId(),
+                                notification.getValueId().getInstance(),
+                                notification.getValueId().getIndex(),
+                                notification.getValueId().getGenre().name(),
+                                notification.getValueId().getType().name(),
+                                manager.getValueLabel(notification.getValueId()),
+                                getValue(notification.getValueId())
+                        ));
+                        break;
+                    case VALUE_REMOVED:
+                        System.out.println(String.format("Value removed\n" +
+                                "\tnode id: %d\n" +
+                                "\tcommand class: %d\n" +
+                                "\tinstance: %d\n" +
+                                "\tindex: %d",
+                                notification.getNodeId(),
+                                notification.getValueId().getCommandClassId(),
+                                notification.getValueId().getInstance(),
+                                notification.getValueId().getIndex()
+                        ));
+                        break;
+                    case VALUE_CHANGED:
+                        System.out.println(String.format("Value changed\n" +
+                                "\tnode id: %d\n" +
+                                "\tcommand class: %d\n" +
+                                "\tinstance: %d\n" +
+                                "\tindex: %d\n" +
+                                "\tvalue: %s",
+                                notification.getNodeId(),
+                                notification.getValueId().getCommandClassId(),
+                                notification.getValueId().getInstance(),
+                                notification.getValueId().getIndex(),
+                                getValue(notification.getValueId())
+                        ));
+                        break;
+                    case VALUE_REFRESHED:
+                        System.out.println(String.format("Value refreshed\n" +
+                                "\tnode id: %d\n" +
+                                "\tcommand class: %d\n" +
+                                "\tinstance: %d\n" +
+                                "\tindex: %d" +
+                                "\tvalue: %s",
+                                notification.getNodeId(),
+                                notification.getValueId().getCommandClassId(),
+                                notification.getValueId().getInstance(),
+                                notification.getValueId().getIndex(),
+                                getValue(notification.getValueId())
+                        ));
+                        break;
+                    case GROUP:
+                        System.out.println(String.format("Group\n" +
+                                "\tnode id: %d\n" +
+                                "\tgroup id: %d",
+                                notification.getNodeId(),
+                                notification.getGroupIdx()
+                        ));
+                        break;
+
+                    case SCENE_EVENT:
+                        System.out.println(String.format("Scene event\n" +
+                                "\tscene id: %d",
+                                notification.getSceneId()
+                        ));
+                        break;
+                    case CREATE_BUTTON:
+                        System.out.println(String.format("Button create\n" +
+                                "\tbutton id: %d",
+                                notification.getButtonId()
+                        ));
+                        break;
+                    case DELETE_BUTTON:
+                        System.out.println(String.format("Button delete\n" +
+                                "\tbutton id: %d",
+                                notification.getButtonId()
+                        ));
+                        break;
+                    case BUTTON_ON:
+                        System.out.println(String.format("Button on\n" +
+                                "\tbutton id: %d",
+                                notification.getButtonId()
+                        ));
+                        break;
+                    case BUTTON_OFF:
+                        System.out.println(String.format("Button off\n" +
+                                "\tbutton id: %d",
+                                notification.getButtonId()
+                        ));
+                        break;
+                    case NOTIFICATION:
+                        System.out.println("Notification");
                         break;
                     default:
                         System.out.println(notification.getType().name());
