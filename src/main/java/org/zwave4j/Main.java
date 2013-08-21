@@ -3,7 +3,6 @@ package org.zwave4j;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.annotation.Annotation;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -39,7 +38,7 @@ public class Main {
                     case DRIVER_RESET:
                         System.out.println("Driver reset");
                         break;
-                    case AWAKE_NODES_QUERIES:
+                    case AWAKE_NODES_QUERIED:
                         System.out.println("Awake nodes queried");
                         break;
                     case ALL_NODES_QUERIED:
