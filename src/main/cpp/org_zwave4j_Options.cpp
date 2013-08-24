@@ -37,11 +37,19 @@ jobject getOptions(JNIEnv * env)
 JNIEXPORT void JNICALL Java_org_zwave4j_Options_createNativeOptions
   (JNIEnv * env, jclass clazz, jstring configPath, jstring userPath, jstring commandLine)
 {
+    const char * configPathChars = env->GetStringUTFChars(configPath, NULL);
+    const char * userPathChars = env->GetStringUTFChars(userPath, NULL);
+    const char * commandLineChars = env->GetStringUTFChars(commandLine, NULL);
+
 	OpenZWave::Options::Create(
-		std::string(env->GetStringUTFChars(configPath, NULL)),
-		std::string(env->GetStringUTFChars(userPath, NULL)),
-		std::string(env->GetStringUTFChars(commandLine, NULL))
+		std::string(configPathChars),
+		std::string(userPathChars),
+		std::string(commandLineChars)
 	);
+
+	env->ReleaseStringUTFChars(configPath, configPathChars);
+	env->ReleaseStringUTFChars(userPath, userPathChars);
+	env->ReleaseStringUTFChars(commandLine, commandLineChars);
 }
 
 /*
@@ -74,7 +82,9 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Options_lock
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Options_addOptionBool
   (JNIEnv * env, jobject object, jstring name, jboolean defaultValue)
 {
-	return OpenZWave::Options::Get()->AddOptionBool(std::string(env->GetStringUTFChars(name, NULL)), getBool(defaultValue));
+    const char * nameChars = env->GetStringUTFChars(name, NULL);
+	return OpenZWave::Options::Get()->AddOptionBool(std::string(nameChars), getBool(defaultValue));
+    env->ReleaseStringUTFChars(name, nameChars);
 }
 
 /*
@@ -85,7 +95,9 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Options_addOptionBool
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Options_addOptionInt
   (JNIEnv * env, jobject object, jstring name, jint defaultValue)
 {
-	return OpenZWave::Options::Get()->AddOptionInt(std::string(env->GetStringUTFChars(name, NULL)), defaultValue);
+    const char * nameChars = env->GetStringUTFChars(name, NULL);
+	return OpenZWave::Options::Get()->AddOptionInt(std::string(nameChars), defaultValue);
+	env->ReleaseStringUTFChars(name, nameChars);
 }
 
 /*
@@ -96,11 +108,17 @@ JNIEXPORT jboolean JNICALL Java_org_zwave4j_Options_addOptionInt
 JNIEXPORT jboolean JNICALL Java_org_zwave4j_Options_addOptionString
   (JNIEnv * env, jobject object, jstring name, jstring defaultValue, jboolean append)
 {
+    const char * nameChars = env->GetStringUTFChars(name, NULL);
+    const char * defaultValueChars = env->GetStringUTFChars(defaultValue, NULL);
+
 	return OpenZWave::Options::Get()->AddOptionString(
-		std::string(env->GetStringUTFChars(name, NULL)), 
-		std::string(env->GetStringUTFChars(defaultValue, NULL)), 
+		std::string(nameChars),
+		std::string(defaultValueChars),
 		getBool(append)
 	);
+
+	env->ReleaseStringUTFChars(name, nameChars);
+	env->ReleaseStringUTFChars(defaultValue, defaultValueChars);
 }
 
 /*
