@@ -5,16 +5,24 @@ Besides the wrapper ZWave4J has a simple executable 'Main' class which demonstra
 
 ZWave4J supports *nix and Windows OS, x86 and amd64 architectures, GCC (MinGW for Windows) compiler.
 It was tested on Windows 7 amd64, Windows XP x86 and Ubuntu 12.04 x86.
-For Windows this build of MinGW was used: http://sourceforge.net/projects/mingwbuilds.
 
-Requirements for build:
+Usage:
+
+You can download the latest ZWave4J release from GitHub, 'jar' contains ZWave4J native libraries for windows and linux os, x86 and amd64 architecture.
+
+To execute sample 'Main' class, run:
+java -cp zwave4j-X-ozw-revY.jar org.zwave4j.Main "C:/open-zwave/config" "//./COM1"
+
+Build requirements:
 
 1. JDK 1.7+ (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 2. Gradle 1.5+ (http://www.gradle.org/downloads)
-3. GCC (MinGW for Windows)
-4. OpenZWave (last tested revision: 664) (https://code.google.com/p/open-zwave)
+3. GCC (MinGW for Windows*)
+4. OpenZWave with sources (latest tested revision: 664) (https://code.google.com/p/open-zwave)
 
-Preparations:
+* For Windows this build of MinGW was used: http://sourceforge.net/projects/mingwbuilds.
+
+Build preparations:
 
 1. For Windows: patch OpenZWave sources with 'OpenZWave.patch', it contains some fixes for MinGW build (hope this will be included into OpenZWave in future).
 2. Compile OpenZWave.
@@ -29,14 +37,9 @@ Build:
 
 Run 'gradle jar' in console. It will compile native JNI library and java classes, assemble 'jar' archive and put it into 'build/libs' directory.
 This 'jar' will only contain native library for your os and architecture.
-To include native libraries for other os and architectures into compiled 'jar', put 'native_libs' directory from other ZWave4J 'jar's in the project root directory,
+To include native libraries for other os and architectures into compiled 'jar', put 'native_libs' directory from other ZWave4J 'jar's in the project root directory.
 
-Usage:
-
-Pre-built ZWave4J library is included in the repository and contains native libraries for windows and linux os, x86 and amd64 architecture.
-So you can just use zwave4j-0.1-ozw-revXXX.jar from the repository without any requirements of building or compiling.
-To execute sample 'Main' class, run:
-java -cp zwave4j-0.1-ozw-revXXX.jar org.zwave4j.Main "C:/open-zwave/config" "//./COM1"
+After build:
 
 If you have built your version of library from sources, you can use several options:
 
@@ -45,7 +48,7 @@ b. Run 'gradle run' in console. It will execute sample 'Main' class.
 c. Run 'gradle installApp' to install application with start scripts into 'build/install/zwave4j', then you can start it manually from 'build/install/zwave4j/bin':
     zwave4j.bat "C:/open-zwave/config" "//./COM1"
 d. Execute ZWave4J 'Main' class manually from 'build/libs' directory:
-    java -cp zwave4j-0.1.jar org.zwave4j.Main "C:/open-zwave/config" "//./COM1"
+    java -cp zwave4j-X.jar org.zwave4j.Main "C:/open-zwave/config" "//./COM1"
 
 Development:
 
