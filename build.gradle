@@ -16,7 +16,10 @@ ext {
 
     javaHome = System.getenv("JAVA_HOME")
     nativeClasses = ["org.zwave4j.Manager", "org.zwave4j.Options"]
-    nativeLibsDir = "native_libs"
+
+    additionalNativeLibsDir = "${projectDir}/native_libs"
+
+    srcNativeLibsDir = "native_libs"
 
     def osName = System.properties["os.name"]
     if (osName == "Linux") {
@@ -84,8 +87,8 @@ task generateNativeHeaders(type: Exec, dependsOn: classes) {
 compileMain.dependsOn generateNativeHeaders
 
 task copyNativeLibs(type: Copy, dependsOn: compileMain) {
-    into "${sourceSets.main.output.classesDir}/${nativeLibsDir}"
-    from "${projectDir}/${nativeLibsDir}"
+    into "${sourceSets.main.output.classesDir}/${srcNativeLibsDir}"
+    from "${additionalNativeLibsDir}"
     from "${buildDir}/binaries", {
         into "${os}/${architecture}"
     }
@@ -111,6 +114,12 @@ task srcJar(type: Jar) {
     classifier = "sources"
 }
 
+task configZip(type: Zip) {
+    from openZWaveConfigDir
+    classifier = "ozw_config"
+}
+
 artifacts {
     archives srcJar
+    archives configZip
 }
