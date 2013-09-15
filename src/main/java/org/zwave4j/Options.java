@@ -21,6 +21,8 @@
 
 package org.zwave4j;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * @author zagumennikov
  */
@@ -56,6 +58,14 @@ public class Options {
     public native boolean addOptionInt(String name, int defaultValue);
 
     public native boolean addOptionString(String name, String defaultValue, boolean append);
+
+    public native boolean getOptionAsBool(String name, AtomicReference<Boolean> value);
+
+    public native boolean getOptionAsInt(String name, AtomicReference<Integer> value);
+
+    public native boolean getOptionAsString(String name, AtomicReference<String> value);
+
+    public native OptionType getOptionType(String name);
 
     public native boolean areLocked();
 }

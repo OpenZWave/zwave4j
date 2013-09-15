@@ -16,9 +16,9 @@ java -cp zwave4j-X-ozw-revY.jar org.zwave4j.Main "C:/open-zwave/config" "//./COM
 Build requirements:
 
 1. JDK 1.7+ (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-2. Gradle 1.5+ (http://www.gradle.org/downloads)
+2. Gradle 1.6 (http://www.gradle.org/downloads)
 3. GCC (MinGW for Windows*)
-4. OpenZWave with sources (latest tested revision: 664) (https://code.google.com/p/open-zwave)
+4. OpenZWave with sources (latest tested revision: 665) (https://code.google.com/p/open-zwave)
 
 * For Windows this build of MinGW was used: http://sourceforge.net/projects/mingwbuilds.
 

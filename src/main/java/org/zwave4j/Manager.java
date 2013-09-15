@@ -21,7 +21,6 @@
 
 package org.zwave4j;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -51,9 +50,6 @@ public class Manager {
     private static native void createNativeManager();
 
     private static native void destroyNativeManager();
-    
-
-    private List<NotificationWatcher> notificationWatchers = new ArrayList<>();
 
     
     //Configuration
@@ -64,6 +60,29 @@ public class Manager {
     public native boolean addDriver(String path);
 
     public native boolean removeDriver(String path);
+
+    public native short getControllerNodeId(long homeId);
+    
+    public native short getSUCNodeId(long homeId);
+    
+    public native boolean isPrimaryController(long homeId);
+    
+    public native boolean isStaticUpdateController(long homeId);
+    
+    public native boolean isBridgeController(long homeId);
+    
+    public native String getLibraryVersion(long homeId);
+    
+    public native String getLibraryTypeName(long homeId);
+    
+    public native int getSendQueueCount(long homeId);
+    
+    public native void logDriverStatistics(long homeId);
+    
+    public native ControllerInterface getControllerInterfaceType(long homeId);
+    
+    public native String getControllerPath(long homeId);
+    
 
     
     //Polling
@@ -225,9 +244,23 @@ public class Manager {
 
     public native void setChangeVerified(ValueId id, boolean verify);
 
+
+    //Button
     public native boolean pressButton(ValueId id);
 
     public native boolean releaseButton(ValueId id);
+
+
+    //Climate Control Schedules
+    public native short getNumSwitchPoints(ValueId id);
+
+    public native boolean setSwitchPoint(ValueId id, short hours, short minutes, byte setback);
+
+    public native boolean removeSwitchPoint(ValueId id, short hours, short minutes);
+
+    public native void clearSwitchPoints(ValueId id);
+
+    public native boolean getSwitchPoint(ValueId id, short idx, AtomicReference<Short> hours, AtomicReference<Short> minutes, AtomicReference<Byte> setback);
 
     
     //Switch all
@@ -245,21 +278,131 @@ public class Manager {
 
     public native void requestAllConfigParams(long homeId, short nodeId);
 
-    public void addNotificationWatcher(NotificationWatcher notificationWatcher) {
-        notificationWatchers.add(notificationWatcher);
-    }
 
-    public void removeNotificationWatcher(NotificationWatcher notificationWatcher) {
-        notificationWatchers.remove(notificationWatcher);
-    }
-    
+    //Groups
+    public native short getNumGroups(long homeId, short nodeId);
 
-    /**
-     * Called from native
-     */
-    private void fireNotificationWatchers(Notification notification) {
-        for (NotificationWatcher notificationWatcher : notificationWatchers) {
-            notificationWatcher.onNotification(notification);
-        }
-    }
+    public native long getAssociations(long homeId, short nodeId, short groupIdx, AtomicReference<short[]> associations);
+
+    public native short getMaxAssociations(long homeId, short nodeId, short groupIdx);
+
+    public native String getGroupLabel(long homeId, short nodeId, short groupIdx);
+
+    public native void addAssociation(long homeId, short nodeId, short groupIdx, short targetNodeId);
+
+    public native void removeAssociation(long homeId, short nodeId, short groupIdx, short targetNodeId);
+
+
+    //Notifications
+    public native void addWatcher(NotificationWatcher notificationWatcher, Object context);
+
+    public native void removeWatcher(NotificationWatcher notificationWatcher, Object context);
+
+
+    //Controller commands
+    public native void resetController(long homeId);
+
+    public native void softReset(long homeId);
+
+    public native boolean beginControllerCommand(long homeId, ControllerCommand command);
+
+    public native boolean beginControllerCommand(long homeId, ControllerCommand command, ControllerCallback callback);
+
+    public native boolean beginControllerCommand(long homeId, ControllerCommand command, ControllerCallback callback, Object context);
+
+    public native boolean beginControllerCommand(long homeId, ControllerCommand command, ControllerCallback callback, Object context, boolean highPower);
+
+    public native boolean beginControllerCommand(long homeId, ControllerCommand command, ControllerCallback callback, Object context, boolean highPower, short nodeId);
+
+    public native boolean beginControllerCommand(long homeId, ControllerCommand command, ControllerCallback callback, Object context, boolean highPower, short nodeId, short arg);
+
+    public native boolean cancelControllerCommand(long homeId);
+
+
+    //Network commands
+    public native void testNetworkNode(long homeId, short nodeId, long count);
+
+    public native void testNetwork(long homeId, long count);
+
+    public native void healNetworkNode(long homeId, short nodeId, boolean doRR);
+
+    public native void healNetwork(long homeId, boolean doRR);
+
+
+    //Scene commands
+    public native short getNumScenes();
+
+    public native short getAllScenes(AtomicReference<short[]> sceneIds);
+
+    public native void removeAllScenes(long homeId);
+
+    public native short createScene();
+
+    public native boolean removeScene(short sceneId);
+
+    public native boolean addSceneValueAsBool(short sceneId, ValueId valueId, boolean value);
+
+    public native boolean addSceneValueAsByte(short sceneId, ValueId valueId, short value);
+
+    public native boolean addSceneValueAsFloat(short sceneId, ValueId valueId, float value);
+
+    public native boolean addSceneValueAsInt(short sceneId, ValueId valueId, int value);
+
+    public native boolean addSceneValueAsShort(short sceneId, ValueId valueId, short value);
+
+    public native boolean addSceneValueAsString(short sceneId, ValueId valueId, String value);
+
+    public native boolean addSceneValueListSelection(short sceneId, ValueId valueId, String value);
+
+    public native boolean addSceneValueListSelection(short sceneId, ValueId valueId, int value);
+
+    public native boolean removeSceneValue(short sceneId, ValueId valueId);
+
+    public native int sceneGetValues(short sceneId, List<ValueId> value);
+
+    public native boolean sceneGetValueAsBool(short sceneId, ValueId valueId, AtomicReference<Boolean> value);
+
+    public native boolean sceneGetValueAsByte(short sceneId, ValueId valueId, AtomicReference<Short> value);
+
+    public native boolean sceneGetValueAsFloat(short sceneId, ValueId valueId, AtomicReference<Float> value);
+
+    public native boolean sceneGetValueAsInt(short sceneId, ValueId valueId, AtomicReference<Integer> value);
+
+    public native boolean sceneGetValueAsShort(short sceneId, ValueId valueId, AtomicReference<Short> value);
+
+    public native boolean sceneGetValueAsString(short sceneId, ValueId valueId, AtomicReference<String> value);
+
+    public native boolean sceneGetValueListSelectionString(short sceneId, ValueId valueId, AtomicReference<String> value);
+
+    public native boolean sceneGetValueListSelectionInt(short sceneId, ValueId valueId, AtomicReference<Integer> value);
+
+    public native boolean setSceneValueAsBool(short sceneId, ValueId valueId, boolean value);
+
+    public native boolean setSceneValueAsByte(short sceneId, ValueId valueId, short value);
+
+    public native boolean setSceneValueAsFloat(short sceneId, ValueId valueId, float value);
+
+    public native boolean setSceneValueAsInt(short sceneId, ValueId valueId, int value);
+
+    public native boolean setSceneValueAsShort(short sceneId, ValueId valueId, short value);
+
+    public native boolean setSceneValueAsString(short sceneId, ValueId valueId, String value);
+
+    public native boolean setSceneValueListSelection(short sceneId, ValueId valueId, String value);
+
+    public native boolean setSceneValueListSelection(short sceneId, ValueId valueId, int value);
+
+    public native String getSceneLabel(short sceneId);
+
+    public native void setSceneLabel(short sceneId, String value);
+
+    public native boolean sceneExists(short sceneId);
+
+    public native boolean activateScene(short sceneId);
+
+
+    //Statistics
+    public native void getDriverStatistics(long homeId, DriverData data);
+
+    public native void getNodeStatistics(long homeId, short nodeId, NodeData data);
 }

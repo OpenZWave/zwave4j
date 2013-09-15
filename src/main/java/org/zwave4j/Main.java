@@ -42,9 +42,10 @@ public class Main {
         options.lock();
 
         final Manager manager = Manager.create();
-        manager.addNotificationWatcher(new NotificationWatcher() {
+
+        final NotificationWatcher watcher = new NotificationWatcher() {
             @Override
-            public void onNotification(Notification notification) {
+            public void onNotification(Notification notification, Object context) {
                 switch (notification.getType()) {
                     case DRIVER_READY:
                         System.out.println(String.format("Driver ready\n" +
@@ -69,6 +70,8 @@ public class Main {
                         break;
                     case ALL_NODES_QUERIED_SOME_DEAD:
                         System.out.println("All nodes queried some dead");
+                        manager.writeConfig(homeId);
+                        ready = true;
                         break;
                     case POLLING_ENABLED:
                         System.out.println("Polling enabled");
@@ -235,13 +238,14 @@ public class Main {
                         break;
                 }
             }
-        });
+        };
+        manager.addWatcher(watcher, null);
 
-        String controllerPort = args[1];
+        final String controllerPort = args[1];
 
         manager.addDriver(controllerPort);
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         String line;
         do {
@@ -250,16 +254,20 @@ public class Main {
                 continue;
             }
 
-            if (line.equals("on")) {
-                manager.switchAllOn(homeId);
-            } else if (line.equals("off")) {
-                manager.switchAllOff(homeId);
+            switch (line) {
+                case "on":
+                    manager.switchAllOn(homeId);
+                    break;
+                case "off":
+                    manager.switchAllOff(homeId);
+                    break;
             }
         } while(line != null && !line.equals("q"));
 
 
         br.close();
 
+        manager.removeWatcher(watcher, null);
         manager.removeDriver(controllerPort);
         Manager.destroy();
 	    Options.destroy();

@@ -24,7 +24,27 @@ package org.zwave4j;
 /**
  * @author zagumennikov
  */
-public interface NotificationWatcher {
+public class CommandClassData {
 
-    void onNotification(Notification notification, Object context);
+    private long commandClassId;
+    private long sentCnt;
+    private long receivedCnt;
+
+    public CommandClassData(long commandClassId, long sentCnt, long receivedCnt) {
+        this.commandClassId = commandClassId;
+        this.sentCnt = sentCnt;
+        this.receivedCnt = receivedCnt;
+    }
+
+    public long getCommandClassId() {
+        return commandClassId;
+    }
+
+    public long getSentCnt() {
+        return sentCnt;
+    }
+
+    public long getReceivedCnt() {
+        return receivedCnt;
+    }
 }

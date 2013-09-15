@@ -24,7 +24,8 @@ package org.zwave4j;
 /**
  * @author zagumennikov
  */
-public interface NotificationWatcher {
-
-    void onNotification(Notification notification, Object context);
+public enum ControllerInterface {
+    UNKNOWN,
+    SERIAL,
+    HID
 }

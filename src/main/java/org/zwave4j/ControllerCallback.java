@@ -24,7 +24,7 @@ package org.zwave4j;
 /**
  * @author zagumennikov
  */
-public interface NotificationWatcher {
+public interface ControllerCallback {
 
-    void onNotification(Notification notification, Object context);
+    void onCallback(ControllerState state, ControllerError err, Object context);
 }
