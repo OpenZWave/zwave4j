@@ -1,6 +1,6 @@
 Index: cpp/src/Defs.h
 ===================================================================
---- cpp/src/Defs.h	(revision 665)
+--- cpp/src/Defs.h	(revision 686)
 +++ cpp/src/Defs.h	(working copy)
 @@ -28,6 +28,7 @@
  #ifndef _Defs_H
@@ -12,7 +12,7 @@ Index: cpp/src/Defs.h
  #ifdef NULL
 Index: cpp/src/platform/windows/LogImpl.cpp
 ===================================================================
---- cpp/src/platform/windows/LogImpl.cpp	(revision 665)
+--- cpp/src/platform/windows/LogImpl.cpp	(revision 686)
 +++ cpp/src/platform/windows/LogImpl.cpp	(working copy)
 @@ -30,6 +30,32 @@
  #include "Defs.h"
@@ -49,7 +49,7 @@ Index: cpp/src/platform/windows/LogImpl.cpp
  //-----------------------------------------------------------------------------
 Index: cpp/src/platform/windows/TimeStampImpl.cpp
 ===================================================================
---- cpp/src/platform/windows/TimeStampImpl.cpp	(revision 665)
+--- cpp/src/platform/windows/TimeStampImpl.cpp	(revision 686)
 +++ cpp/src/platform/windows/TimeStampImpl.cpp	(working copy)
 @@ -25,6 +25,7 @@
  //	along with OpenZWave.  If not, see <http://www.gnu.org/licenses/>.
