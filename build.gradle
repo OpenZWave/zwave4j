@@ -63,16 +63,25 @@ libraries {
                 cppCompiler.args "-I", "${openZWaveDir}/cpp/src/platform"
                 cppCompiler.args "-I", "${openZWaveDir}/cpp/src/platform/unix"
                 cppCompiler.args "-I", "${openZWaveDir}/cpp/src/platform/windows"
-                
+
                 if (architecture == "amd64") {
                     cppCompiler.args "-m64"
+                    toolChain.linker.withArguments { args ->
+                        args << "-m64"
+                    }
                 }
                 if (architecture == "x86") {
                     cppCompiler.args "-m32"
+                    toolChain.linker.withArguments { args ->
+                        args << "-m32"
+                    }
                 }
             
                 if (os == "windows") {
                     linker.args "-static"
+                    toolChain.linker.withArguments { args ->
+                            args << "-lsetupapi"
+                    }
                     if (architecture == "x86") {
                         linker.args "--kill-at"
                     }
@@ -80,9 +89,6 @@ libraries {
                 
                 toolChain.linker.withArguments { args ->
                     args << project.openZWaveLibFile
-                    if (os == "windows") {
-                        args << "-lsetupapi"
-                    }
                 }
                 
                 tasks.withType(CppCompile) {
