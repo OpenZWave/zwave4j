@@ -2,7 +2,7 @@ apply plugin: "maven"
 apply plugin: "java"
 apply plugin: "application"
 apply plugin: "idea"
-apply plugin: "cpp-lib"
+apply plugin: "cpp"
 
 group = "org.zwave4j"
 version = "0.2"
@@ -45,51 +45,70 @@ repositories {
     mavenCentral()
 }
 
+toolChains {
+    gcc(Gcc) {}
+}
+
 libraries {
     main {
-        spec {
-            includes(files("${javaHome}/include"))
-            includes(files("${javaHome}/include/win32"))
-            includes(files("${javaHome}/include/linux"))
-            includes(files("${openZWaveDir}/cpp/src"))
-            includes(files("${openZWaveDir}/cpp/src/value_classes"))
-            includes(files("${openZWaveDir}/cpp/src/command_classes"))
-            includes(files("${openZWaveDir}/cpp/src/platform"))
-            includes(files("${openZWaveDir}/cpp/src/platform/unix"))
-            includes(files("${openZWaveDir}/cpp/src/platform/windows"))
-            args openZWaveLibFile
-            if (architecture == "amd64") {
-                args "-m64"
-            }
-            if (architecture == "x86") {
-                args "-m32"
-            }
-            if (os == "windows") {
-                args "-static"
-                args "-lsetupapi"
-                if (architecture == "x86") {
-                    args "-Wl,--kill-at"
-                }
-            }
-        }
+		baseName = "zwave4j"
+		binaries.all {
+			if (toolChain in Gcc) {
+				cppCompiler.args "-I", "${javaHome}/include"
+				cppCompiler.args "-I", "${javaHome}/include/win32"
+				cppCompiler.args "-I", "${javaHome}/include/linux"
+				cppCompiler.args "-I", "${openZWaveDir}/cpp/src"
+				cppCompiler.args "-I", "${openZWaveDir}/cpp/src/value_classes"
+				cppCompiler.args "-I", "${openZWaveDir}/cpp/src/command_classes"
+				cppCompiler.args "-I", "${openZWaveDir}/cpp/src/platform"
+				cppCompiler.args "-I", "${openZWaveDir}/cpp/src/platform/unix"
+				cppCompiler.args "-I", "${openZWaveDir}/cpp/src/platform/windows"
+				
+				if (architecture == "amd64") {
+					cppCompiler.args "-m64"
+				}
+				if (architecture == "x86") {
+					cppCompiler.args "-m32"
+				}
+			
+				if (os == "windows") {
+					linker.args "-static"
+					if (architecture == "x86") {
+						linker.args "--kill-at"
+					}
+				} 
+				
+				toolChain.linker.withArguments { args ->
+					args << project.openZWaveLibFile
+					if (os == "windows") {
+						args << "-lsetupapi"
+					}
+				}
+				
+				tasks.withType(CppCompile) {
+					dependsOn generateNativeHeaders
+				}
+			}
+		}
     }
 }
 
 task generateNativeHeaders(type: Exec, dependsOn: classes) {
     inputs.dir(sourceSets.main.output.classesDir)
-    outputs.files(cpp.sourceSets.main.exportedHeaders.files)
     commandLine "javah"
-    args "-d", cpp.sourceSets.main.exportedHeaders.srcDirs.iterator()[0]
-    args "-classpath", sourceSets.main.runtimeClasspath.asPath
-    args nativeClasses
+	
+	afterEvaluate {
+		outputs.dir(sources.main.cpp.exportedHeaders.srcDirs.iterator()[0])
+		args "-d", sources.main.cpp.exportedHeaders.srcDirs.iterator()[0]
+		args "-classpath", sourceSets.main.runtimeClasspath.asPath
+		args nativeClasses
+	}
 }
 
-compileMain.dependsOn generateNativeHeaders
-
-task copyNativeLibs(type: Copy, dependsOn: compileMain) {
+task copyNativeLibs(type: Copy, dependsOn: ":mainSharedLibrary") {
     into "${sourceSets.main.output.classesDir}/${srcNativeLibsDir}"
     from "${additionalNativeLibsDir}"
-    from "${buildDir}/binaries", {
+    from "${buildDir}/binaries/mainSharedLibrary", {
         into "${os}/${architecture}"
     }
 }
