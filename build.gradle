@@ -144,6 +144,10 @@ task configZip(type: Zip) {
     classifier = "ozw_config"
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.10'
+}
+
 artifacts {
     archives srcJar
     archives configZip
