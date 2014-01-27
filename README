@@ -16,7 +16,6 @@ java -cp zwave4j-X-ozw-revY.jar org.zwave4j.Main "C:/open-zwave/config" "//./COM
 Build requirements:
 
 1. JDK 1.7+ (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-2. Gradle 1.6 (http://www.gradle.org/downloads)
 3. GCC (MinGW for Windows*)
 4. OpenZWave with sources (latest tested revision: 711) (https://code.google.com/p/open-zwave)
 
@@ -35,7 +34,7 @@ Build preparations:
 
 Build:
 
-Run 'gradle jar' in console. It will compile native JNI library and java classes, assemble 'jar' archive and put it into 'build/libs' directory.
+Run 'gradlew jar' in console. It will compile native JNI library and java classes, assemble 'jar' archive and put it into 'build/libs' directory.
 This 'jar' will only contain native library for your os and architecture.
 To include native libraries for other os and architectures into compiled 'jar', put 'native_libs' directory from other ZWave4J 'jar's in the project root directory.
 
@@ -43,14 +42,14 @@ After build:
 
 If you have built your version of library from sources, you can use several options:
 
-a. Run 'gradle install' to install library into local maven repository for using ZWave4J as a library in your other projects.
-b. Run 'gradle run' in console. It will execute sample 'Main' class.
-c. Run 'gradle installApp' to install application with start scripts into 'build/install/zwave4j', then you can start it manually from 'build/install/zwave4j/bin':
+a. Run 'gradlew install' to install library into local maven repository for using ZWave4J as a library in your other projects.
+b. Run 'gradlew run' in console. It will execute sample 'Main' class.
+c. Run 'gradlew installApp' to install application with start scripts into 'build/install/zwave4j', then you can start it manually from 'build/install/zwave4j/bin':
     zwave4j.bat "C:/open-zwave/config" "//./COM1"
 d. Execute ZWave4J 'Main' class manually from 'build/libs' directory:
     java -cp zwave4j-X.jar org.zwave4j.Main "C:/open-zwave/config" "//./COM1"
 
 Development:
 
-You can generate IntelliJ IDEA (http://www.jetbrains.com/idea/) project files running 'gradle idea' task.
+You can generate IntelliJ IDEA (http://www.jetbrains.com/idea/) project files running 'gradlew idea' task.
 You can use C/C++ plugin (http://plugins.jetbrains.com/plugin/?id=1373) to work with native sources.
