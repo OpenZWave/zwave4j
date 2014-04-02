@@ -1,14 +1,16 @@
-apply plugin: "maven"
 apply plugin: "java"
+apply plugin: "maven"
 apply plugin: "application"
 apply plugin: "idea"
 apply plugin: "cpp"
-
-group = "org.zwave4j"
-version = "0.2"
-mainClassName = "org.zwave4j.Main"
+apply plugin: "signing"
 
 ext {
+    release = hasProperty("release") ? release : false
+    signEnabled = hasProperty("signEnabled") ? signEnabled : false
+    sonatypeUsername = hasProperty("sonatypeUsername") ? sonatypeUsername : "";
+    sonatypePassword = hasProperty("sonatypePassword") ? sonatypePassword : "";
+
     openZWaveDir = project.openZWaveDir
     openZWaveLibFile = project.openZWaveLibFile
     openZWaveConfigDir = project.openZWaveConfigDir
@@ -35,10 +37,14 @@ ext {
     def architectureName = System.properties["os.arch"]
     if (architectureName.endsWith("86")) {
         architecture = "x86"
-    } else if (architectureName == "amd64") {
+    } else if (architectureName == "amd64" || architectureName == "x86_64") {
         architecture = "amd64"
     }
 }
+
+group = "com.github.zgmnkv"
+version = "0.2" + (release ? "" : "-SNAPSHOT")
+mainClassName = "org.zwave4j.Main"
 
 repositories {
     mavenLocal()
@@ -134,21 +140,72 @@ run {
     ])
 }
 
-task srcJar(type: Jar) {
-    from sourceSets.main.java.srcDirs
-    classifier = "sources"
+task sourcesJar(type: Jar) {
+    classifier "sources"
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar) {
+    classifier "javadoc"
+    from javadoc
 }
 
 task configZip(type: Zip) {
     from openZWaveConfigDir
-    classifier = "ozw_config"
+    classifier "ozw_config"
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.10'
+    gradleVersion = "1.10"
 }
 
 artifacts {
-    archives srcJar
+    archives sourcesJar
+    archives javadocJar
     archives configZip
+}
+
+signing {
+    required { signEnabled }
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { signing.signPom(it) }
+
+            repository(url: "https://oss.sonatype.org/" + (release ? "service/local/staging/deploy/maven2" : "content/repositories/snapshots")) {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+                packaging "jar"
+                name "ZWave4J"
+                description "ZWave4J is a Java wrapper for Open-ZWave library"
+                url "https://github.com/zgmnkv/zwave4j"
+
+                scm {
+                    url "https://github.com/zgmnkv/zwave4j"
+                    connection "scm:git:https://github.com/zgmnkv/zwave4j"
+                    developerConnection "scm:git:https://github.com/zgmnkv/zwave4j"
+                }
+
+                licenses {
+                    license {
+                        name "GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007"
+                        url "http://www.gnu.org/licenses/gpl-3.0.txt"
+                        distribution "repo"
+                    }
+                }
+
+                developers {
+                    developer {
+                        id "zgmnkv"
+                        name "Alexander Zagumennikov"
+                    }
+                }
+            }
+        }
+    }
 }
