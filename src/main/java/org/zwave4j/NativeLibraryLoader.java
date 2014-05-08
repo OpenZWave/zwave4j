@@ -115,6 +115,6 @@ public class NativeLibraryLoader {
     }
 
     private static boolean isAmd64(String architecture) {
-        return architecture.endsWith("64");
+        return architecture.equals("amd64") || architecture.equals("x86_64");
     }
 }
