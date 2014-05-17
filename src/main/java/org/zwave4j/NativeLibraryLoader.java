@@ -35,6 +35,7 @@ public class NativeLibraryLoader {
     public static final String OS_X_DIRECTORY_NAME = "os_x";
     public static final String X86_DIRECTORY_NAME = "x86";
     public static final String AMD_64_DIRECTORY_NAME = "amd64";
+    public static final String ARM_DIRECTORY_NAME = "arm";
 
     private static final String TEMP_FILE_PREFIX = "native-lib-";
 
@@ -88,6 +89,8 @@ public class NativeLibraryLoader {
             libraryPathBuilder.append(X86_DIRECTORY_NAME);
         } else if (isAmd64(architecture)) {
             libraryPathBuilder.append(AMD_64_DIRECTORY_NAME);
+        } else if (isArm(architecture)) {
+            libraryPathBuilder.append(ARM_DIRECTORY_NAME);
         }
 
         libraryPathBuilder.append('/').append(System.mapLibraryName(libraryName));
@@ -112,6 +115,10 @@ public class NativeLibraryLoader {
 
     private static boolean isX86(String architecture) {
         return architecture.endsWith("86");
+    }
+
+    private static boolean isArm(String architecture) {
+        return architecture.equals("arm");
     }
 
     private static boolean isAmd64(String architecture) {

@@ -39,6 +39,8 @@ ext {
         architecture = "x86"
     } else if (architectureName == "amd64" || architectureName == "x86_64") {
         architecture = "amd64"
+    } else if (architectureName == "arm") {
+        architecture = "arm"
     }
 }
 
