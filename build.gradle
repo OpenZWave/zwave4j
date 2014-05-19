@@ -6,42 +6,20 @@ apply plugin: "cpp"
 apply plugin: "signing"
 
 ext {
-    release = hasProperty("release") ? release : false
-    signEnabled = hasProperty("signEnabled") ? signEnabled : false
-    sonatypeUsername = hasProperty("sonatypeUsername") ? sonatypeUsername : "";
-    sonatypePassword = hasProperty("sonatypePassword") ? sonatypePassword : "";
+    release = project.hasProperty("release") ? Boolean.valueOf(project.release) : false
+    signEnabled = project.hasProperty("signEnabled") ? Boolean.valueOf(project.signEnabled) : false
+    sonatypeUsername = project.hasProperty("sonatypeUsername") ? project.sonatypeUsername : ""
+    sonatypePassword = project.hasProperty("sonatypePassword") ? project.sonatypePassword : ""
 
     openZWaveDir = project.openZWaveDir
-    openZWaveLibFile = project.openZWaveLibFile
     openZWaveConfigDir = project.openZWaveConfigDir
     zWaveControllerPort = project.zWaveControllerPort
 
-    javaHome = System.getenv("JAVA_HOME")
     nativeClasses = ["org.zwave4j.Manager", "org.zwave4j.Options"]
 
-    additionalNativeLibsDir = "${projectDir}/native_libs"
+    additionalNativeLibsDir = "native_libs"
 
-    srcNativeLibsDir = "native_libs"
-
-    def osName = System.properties["os.name"]
-    if (osName == "Linux") {
-        os = "linux"
-    } else if (osName.startsWith("Windows")) {
-        os = "windows"
-    } else if (osName == "SunOS") {
-        os = "solaris"
-    } else if (osName.endsWith("OS X")) {
-        os = "os_x"
-    }
-
-    def architectureName = System.properties["os.arch"]
-    if (architectureName.endsWith("86")) {
-        architecture = "x86"
-    } else if (architectureName == "amd64" || architectureName == "x86_64") {
-        architecture = "amd64"
-    } else if (architectureName == "arm") {
-        architecture = "arm"
-    }
+    classesNativeLibsDir = "native_libs"
 }
 
 group = "com.github.zgmnkv"
@@ -53,8 +31,84 @@ repositories {
     mavenCentral()
 }
 
-toolChains {
-    gcc(Gcc) {}
+model {
+    platforms {
+        osx_x86 {
+            architecture "x86"
+            operatingSystem "osx"
+        }
+        osx_amd64 {
+            architecture "amd64"
+            operatingSystem "osx"
+        }
+        linux_x86 {
+            architecture "x86"
+            operatingSystem "linux"
+        }
+        linux_amd64 {
+            architecture "amd64"
+            operatingSystem "linux"
+        }
+        linux_arm {
+            architecture "arm"
+            operatingSystem "linux"
+        }
+        windows_x86 {
+            architecture "x86"
+            operatingSystem "windows"
+        }
+        windows_amd64 {
+            architecture "amd64"
+            operatingSystem "windows"
+        }
+    }
+    toolChains {
+        gcc(Gcc) {
+            //gradle 1.12 for some reason does not support windows amd64 cross compile
+            addPlatformConfiguration(new TargetPlatformConfiguration() {
+                boolean supportsPlatform(Platform platform) {
+                    platform.operatingSystem.current && platform.operatingSystem.name == "windows" && platform.architecture.name == "amd64"
+                }
+                List<String> getCppCompilerArgs() { ["-m64"] }
+                List<String> getCCompilerArgs() { ["-m64"] }
+                List<String> getObjectiveCCompilerArgs() { ["-m64"] }
+                List<String> getObjectiveCppCompilerArgs() { ["-m64"] }
+                List<String> getAssemblerArgs() { ["--64"] }
+                List<String> getLinkerArgs() { ["-m64"] }
+                List<String> getStaticLibraryArchiverArgs() { [] }
+            })
+        }
+    }
+}
+
+sources {
+    main {
+        cpp {
+            source {
+                srcDir "src/main/cpp"
+                srcDir "$openZWaveDir/cpp/tinyxml"
+
+                if (org.gradle.internal.os.OperatingSystem.current().windows) {
+                    srcDir "$openZWaveDir/cpp/hidapi/windows"
+                }
+
+                srcDir "$openZWaveDir/cpp/src"
+                srcDir "$openZWaveDir/cpp/src/command_classes"
+                srcDir "$openZWaveDir/cpp/src/value_classes"
+                srcDir "$openZWaveDir/cpp/src/platform"
+
+                if (org.gradle.internal.os.OperatingSystem.current().windows) {
+                    srcDir "$openZWaveDir/cpp/src/platform/windows"
+                } else {
+                    srcDir "$openZWaveDir/cpp/src/platform/unix"
+                }
+
+                srcDir "$project.buildDir/ozw-version"
+
+                include "*.cpp"
+            }
+        }
+    }
 }
 
 libraries {
@@ -62,68 +116,89 @@ libraries {
         baseName = "zwave4j"
         binaries.all {
             if (toolChain in Gcc) {
-                cppCompiler.args "-I", "${javaHome}/include"
-                cppCompiler.args "-I", "${javaHome}/include/win32"
-                cppCompiler.args "-I", "${javaHome}/include/linux"
-                cppCompiler.args "-I", "${openZWaveDir}/cpp/src"
-                cppCompiler.args "-I", "${openZWaveDir}/cpp/src/value_classes"
-                cppCompiler.args "-I", "${openZWaveDir}/cpp/src/command_classes"
-                cppCompiler.args "-I", "${openZWaveDir}/cpp/src/platform"
-                cppCompiler.args "-I", "${openZWaveDir}/cpp/src/platform/unix"
-                cppCompiler.args "-I", "${openZWaveDir}/cpp/src/platform/windows"
+                if (targetPlatform.operatingSystem.windows) {
+                    cppCompiler.args "-DMINGW"
+                }
 
-                if (architecture == "amd64") {
-                    cppCompiler.args "-m64"
-                    toolChain.linker.withArguments { args ->
-                        args << "-m64"
-                    }
+                cppCompiler.args "-I", "$project.buildDir/native-headers"
+
+                cppCompiler.args "-I", "$openZWaveDir/cpp/tinyxml"
+                cppCompiler.args "-I", "$openZWaveDir/cpp/hidapi/hidapi"
+                cppCompiler.args "-I", "$openZWaveDir/cpp/src"
+                cppCompiler.args "-I", "$openZWaveDir/cpp/src/command_classes"
+                cppCompiler.args "-I", "$openZWaveDir/cpp/src/value_classes"
+                cppCompiler.args "-I", "$openZWaveDir/cpp/src/platform"
+
+                if (targetPlatform.operatingSystem.windows) {
+                    cppCompiler.args "-I", "$openZWaveDir/cpp/src/platform/windows"
+                } else {
+                    cppCompiler.args "-I", "$openZWaveDir/cpp/src/platform/unix"
                 }
-                if (architecture == "x86") {
-                    cppCompiler.args "-m32"
-                    toolChain.linker.withArguments { args ->
-                        args << "-m32"
-                    }
+
+                cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+
+                if (targetPlatform.operatingSystem.macOsX) {
+                    cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
+                } else if (targetPlatform.operatingSystem.linux) {
+                    cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
+                } else if (targetPlatform.operatingSystem.windows) {
+                    cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
                 }
-            
-                if (os == "windows") {
+
+                if (targetPlatform.operatingSystem.macOsX) {
+                    linker.args "-mmacosx-version-min=10.4"
+                } else if (targetPlatform.operatingSystem.windows) {
+                    linker.args "-lsetupapi"
                     linker.args "-static"
-                    toolChain.linker.withArguments { args ->
-                            args << "-lsetupapi"
+                    if (targetPlatform.architecture.name == "x86") {
+                        linker.args "-Wl,--kill-at"
                     }
-                    if (architecture == "x86") {
-                        linker.args "--kill-at"
-                    }
-                } 
-                
-                toolChain.linker.withArguments { args ->
-                    args << project.openZWaveLibFile
                 }
-                
+
                 tasks.withType(CppCompile) {
-                    dependsOn generateNativeHeaders
+                    dependsOn generateNativeHeaders, generateOzwVersionCpp
                 }
             }
         }
     }
 }
 
-task generateNativeHeaders(type: Exec, dependsOn: classes) {
-    inputs.dir(sourceSets.main.output.classesDir)
-    commandLine "javah"
-    
-    afterEvaluate {
-        outputs.dir(sources.main.cpp.exportedHeaders.srcDirs.iterator()[0])
-        args "-d", sources.main.cpp.exportedHeaders.srcDirs.iterator()[0]
-        args "-classpath", sourceSets.main.runtimeClasspath.asPath
-        args nativeClasses
+task generateOzwVersionCpp() {
+    outputs.file("$project.buildDir/ozw-version/version.cpp")
+    doLast {
+        def f = file("$project.buildDir/ozw-version/version.cpp")
+        f.parentFile.mkdirs()
+        f.text = "" +
+                "unsigned short ozw_vers_minor = 1;\n" +
+                "unsigned short ozw_vers_major = 0;\n" +
+                "unsigned short ozw_vers_revision = 0;\n" +
+                "char ozw_vers[] = \"OpenZWave version 1.0.0\";\n"
     }
 }
 
-task copyNativeLibs(type: Copy, dependsOn: ":mainSharedLibrary") {
-    into "${sourceSets.main.output.classesDir}/${srcNativeLibsDir}"
-    from "${additionalNativeLibsDir}"
-    from "${buildDir}/binaries/mainSharedLibrary", {
-        into "${os}/${architecture}"
+task generateNativeHeaders(type: Exec, dependsOn: classes) {
+    inputs.dir(sourceSets.main.output.classesDir)
+    outputs.dir("$project.buildDir/native-headers")
+
+    commandLine "javah"
+    args "-d", "$project.buildDir/native-headers"
+    args "-classpath", sourceSets.main.runtimeClasspath.asPath
+    args nativeClasses
+}
+
+task copyNativeLibs(type: Copy) {
+    into "$sourceSets.main.output.classesDir/$classesNativeLibsDir"
+    from additionalNativeLibsDir
+}
+
+libraries.main.binaries.withType(SharedLibraryBinary) {
+    if (targetPlatform.operatingSystem.current) {
+        afterEvaluate {
+            copyNativeLibs.dependsOn tasks.builder
+            copyNativeLibs.from tasks.builder.outputFile, {
+                into "$targetPlatform.operatingSystem.name/$targetPlatform.architecture.name"
+            }
+        }
     }
 }
 

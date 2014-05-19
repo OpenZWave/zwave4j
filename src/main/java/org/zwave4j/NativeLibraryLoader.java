@@ -32,9 +32,9 @@ public class NativeLibraryLoader {
     public static final String WINDOWS_DIRECTORY_NAME = "windows";
     public static final String LINUX_DIRECTORY_NAME = "linux";
     public static final String SOLARIS_DIRECTORY_NAME = "solaris";
-    public static final String OS_X_DIRECTORY_NAME = "os_x";
+    public static final String OSX_DIRECTORY_NAME = "osx";
     public static final String X86_DIRECTORY_NAME = "x86";
-    public static final String AMD_64_DIRECTORY_NAME = "amd64";
+    public static final String AMD64_DIRECTORY_NAME = "amd64";
     public static final String ARM_DIRECTORY_NAME = "arm";
 
     private static final String TEMP_FILE_PREFIX = "native-lib-";
@@ -79,7 +79,7 @@ public class NativeLibraryLoader {
         } else if (isSunOS(osName)) {
             libraryPathBuilder.append(SOLARIS_DIRECTORY_NAME);
         } else if (isOSX(osName)) {
-            libraryPathBuilder.append(OS_X_DIRECTORY_NAME);
+            libraryPathBuilder.append(OSX_DIRECTORY_NAME);
         }
 
         libraryPathBuilder.append('/');
@@ -88,7 +88,7 @@ public class NativeLibraryLoader {
         if (isX86(architecture)) {
             libraryPathBuilder.append(X86_DIRECTORY_NAME);
         } else if (isAmd64(architecture)) {
-            libraryPathBuilder.append(AMD_64_DIRECTORY_NAME);
+            libraryPathBuilder.append(AMD64_DIRECTORY_NAME);
         } else if (isArm(architecture)) {
             libraryPathBuilder.append(ARM_DIRECTORY_NAME);
         }

@@ -20,8 +20,8 @@
  */
 
 #include <Options.h>
-#include "../headers/init.h"
-#include "../headers/org_zwave4j_Options.h"
+#include <org_zwave4j_Options.h>
+#include "init.h"
 
 jobject getOptionType(JNIEnv * env, OpenZWave::Options::OptionType ozwOptionType)
 {

@@ -21,8 +21,8 @@
 
 #include <Manager.h>
 #include <Notification.h>
-#include "../headers/init.h"
-#include "../headers/org_zwave4j_Manager.h"
+#include <org_zwave4j_Manager.h>
+#include "init.h"
 
 jobject getNotificationType(JNIEnv * env, OpenZWave::Notification::NotificationType ozwNotificationType)
 {
