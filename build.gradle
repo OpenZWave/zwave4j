@@ -192,8 +192,8 @@ task copyNativeLibs(type: Copy) {
 }
 
 libraries.main.binaries.withType(SharedLibraryBinary) {
-    if (targetPlatform.operatingSystem.current) {
-        afterEvaluate {
+    afterEvaluate {
+        if (buildable) {
             copyNativeLibs.dependsOn tasks.builder
             copyNativeLibs.from tasks.builder.outputFile, {
                 into "$targetPlatform.operatingSystem.name/$targetPlatform.architecture.name"
