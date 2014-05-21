@@ -25,7 +25,7 @@ To execute sample `Main` class, run:
 ### Preparations
 
 1. Copy `example.gradle.properties` into `gradle.properties`.
-2. Edit properties in gradle.properties:
+2. Edit properties in `gradle.properties`:
   * `openZWaveDir` - path to OpenZWave library source directory, needed compile.
   * `openZWaveConfigDir` - path to OpenZWave devices configurations directory, needed for OpenZWave library in runtime.
   * `zWaveControllerPort` - path to serial device, which Z-Wave controller is connected to, e.g. `//./COM1` for Windows or `/dev/ttyUSB0` for Linux.
