@@ -183,8 +183,6 @@ libraries {
                     if (targetPlatform.architecture.name == "x86") {
                         linker.args "-Wl,--kill-at"
                     }
-                } else if (targetPlatform.operatingSystem.linux) {
-                    linker.args "-ludev"
                 } else if (targetPlatform.operatingSystem.macOsX) {
                     linker.args "-mmacosx-version-min=10.4"
                     linker.args "-stdlib=libstdc++"
