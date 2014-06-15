@@ -14,7 +14,6 @@ Supported platforms:
 
 You can download the latest ZWave4J release from [GitHub](https://github.com/zgmnkv/zwave4j/releases) or from [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22zwave4j%22),
 or unstable snapshot from [oss sonatype](https://oss.sonatype.org/content/repositories/snapshots/com/github/zgmnkv/zwave4j/).
-Library contains native binaries for windows and linux os, x86 and amd64 architecture.
 
 To execute sample `Main` class, run:
 ```java -cp zwave4j-X.jar org.zwave4j.Main "C:/open-zwave/config" "//./COM1"```
