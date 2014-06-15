@@ -68,7 +68,8 @@ model {
             //gradle 1.12 for some reason does not support windows amd64 cross compile
             addPlatformConfiguration(new TargetPlatformConfiguration() {
                 boolean supportsPlatform(Platform platform) {
-                    platform.operatingSystem.current && platform.operatingSystem.name == "windows" && platform.architecture.name == "amd64"
+                    platform.operatingSystem.current && platform.operatingSystem.name == "windows" &&
+                            platform.architecture.name == "amd64"
                 }
                 List<String> getCppCompilerArgs() { ["-m64"] }
                 List<String> getCCompilerArgs() { ["-m64"] }
@@ -76,6 +77,20 @@ model {
                 List<String> getObjectiveCppCompilerArgs() { ["-m64"] }
                 List<String> getAssemblerArgs() { ["--64"] }
                 List<String> getLinkerArgs() { ["-m64"] }
+                List<String> getStaticLibraryArchiverArgs() { [] }
+            })
+            //linux arm target support for linux arm host, no compiler/linker options
+            addPlatformConfiguration(new TargetPlatformConfiguration() {
+                boolean supportsPlatform(Platform platform) {
+                    platform.operatingSystem.current && platform.operatingSystem.name == "linux" &&
+                            System.properties["os.arch"] == "arm" && platform.architecture.name == "arm"
+                }
+                List<String> getCppCompilerArgs() { [] }
+                List<String> getCCompilerArgs() { [] }
+                List<String> getObjectiveCCompilerArgs() { [] }
+                List<String> getObjectiveCppCompilerArgs() { [] }
+                List<String> getAssemblerArgs() { [] }
+                List<String> getLinkerArgs() { [] }
                 List<String> getStaticLibraryArchiverArgs() { [] }
             })
         }
@@ -227,7 +242,8 @@ task copyNativeLibs(type: Copy) {
 
 libraries.main.binaries.withType(SharedLibraryBinary) {
     afterEvaluate {
-        if (buildable) {
+        //for "arm" host gradle treats "amd64" and "x86" as buildable, adding additional conditions
+        if (buildable && (System.properties["os.arch"] != "arm" || targetPlatform.architecture.name == "arm")) {
             copyNativeLibs.dependsOn tasks.builder
             copyNativeLibs.from tasks.builder.outputFile, {
                 into "$targetPlatform.operatingSystem.name/$targetPlatform.architecture.name"
