@@ -3,6 +3,7 @@ apply plugin: "maven"
 apply plugin: "application"
 apply plugin: "idea"
 apply plugin: "cpp"
+apply plugin: "c"
 apply plugin: "signing"
 
 ext {
@@ -33,13 +34,13 @@ repositories {
 
 model {
     platforms {
-        osx_x86 {
+        windows_x86 {
             architecture "x86"
-            operatingSystem "osx"
+            operatingSystem "windows"
         }
-        osx_amd64 {
+        windows_amd64 {
             architecture "amd64"
-            operatingSystem "osx"
+            operatingSystem "windows"
         }
         linux_x86 {
             architecture "x86"
@@ -53,13 +54,13 @@ model {
             architecture "arm"
             operatingSystem "linux"
         }
-        windows_x86 {
+        osx_x86 {
             architecture "x86"
-            operatingSystem "windows"
+            operatingSystem "osx"
         }
-        windows_amd64 {
+        osx_amd64 {
             architecture "amd64"
-            operatingSystem "windows"
+            operatingSystem "osx"
         }
     }
     toolChains {
@@ -78,6 +79,7 @@ model {
                 List<String> getStaticLibraryArchiverArgs() { [] }
             })
         }
+        clang(Clang)
     }
 }
 
@@ -85,13 +87,15 @@ sources {
     main {
         cpp {
             source {
-                srcDir "src/main/cpp"
+                //tinyxml sources
                 srcDir "$openZWaveDir/cpp/tinyxml"
 
+                //hidapi sources
                 if (org.gradle.internal.os.OperatingSystem.current().windows) {
                     srcDir "$openZWaveDir/cpp/hidapi/windows"
                 }
 
+                //open-zwave sources
                 srcDir "$openZWaveDir/cpp/src"
                 srcDir "$openZWaveDir/cpp/src/command_classes"
                 srcDir "$openZWaveDir/cpp/src/value_classes"
@@ -103,9 +107,24 @@ sources {
                     srcDir "$openZWaveDir/cpp/src/platform/unix"
                 }
 
+                //open-zwave version generated sources
                 srcDir "$project.buildDir/ozw-version"
 
+                //zwave4j sources
+                srcDir "src/main/cpp"
+
                 include "*.cpp"
+            }
+        }
+        c {
+            source {
+                if (org.gradle.internal.os.OperatingSystem.current().linux) {
+                    srcDir "$openZWaveDir/cpp/hidapi/linux"
+                } else if (org.gradle.internal.os.OperatingSystem.current().macOsX) {
+                    srcDir "$openZWaveDir/cpp/hidapi/mac"
+                }
+
+                include "*.c"
             }
         }
     }
@@ -115,15 +134,23 @@ libraries {
     main {
         baseName = "zwave4j"
         binaries.all {
-            if (toolChain in Gcc) {
+            if (toolChain in Gcc || toolChain in Clang) {
+                //platform-specific compiler args
                 if (targetPlatform.operatingSystem.windows) {
                     cppCompiler.args "-DMINGW"
+                } else if (targetPlatform.operatingSystem.macOsX) {
+                    cppCompiler.args "-DDARWIN"
+                    cppCompiler.args "-stdlib=libstdc++"
                 }
 
-                cppCompiler.args "-I", "$project.buildDir/native-headers"
-
+                //tinyxml headers
                 cppCompiler.args "-I", "$openZWaveDir/cpp/tinyxml"
+
+                //hidapi headers
                 cppCompiler.args "-I", "$openZWaveDir/cpp/hidapi/hidapi"
+                cCompiler.args "-I", "$openZWaveDir/cpp/hidapi/hidapi"
+
+                //open-zwave headers
                 cppCompiler.args "-I", "$openZWaveDir/cpp/src"
                 cppCompiler.args "-I", "$openZWaveDir/cpp/src/command_classes"
                 cppCompiler.args "-I", "$openZWaveDir/cpp/src/value_classes"
@@ -135,24 +162,33 @@ libraries {
                     cppCompiler.args "-I", "$openZWaveDir/cpp/src/platform/unix"
                 }
 
+                //java headers
                 cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
 
-                if (targetPlatform.operatingSystem.macOsX) {
-                    cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
+                if (targetPlatform.operatingSystem.windows) {
+                    cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
                 } else if (targetPlatform.operatingSystem.linux) {
                     cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
-                } else if (targetPlatform.operatingSystem.windows) {
-                    cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+                } else if (targetPlatform.operatingSystem.macOsX) {
+                    cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
                 }
 
-                if (targetPlatform.operatingSystem.macOsX) {
-                    linker.args "-mmacosx-version-min=10.4"
-                } else if (targetPlatform.operatingSystem.windows) {
+                //zwave4j generated headers
+                cppCompiler.args "-I", "$project.buildDir/native-headers"
+
+                //platform-specific linker args
+                if (targetPlatform.operatingSystem.windows) {
+                    linker.args "-static" //static link mingw dlls (libstdc++, libgcc, libwinpthread, etc)
                     linker.args "-lsetupapi"
-                    linker.args "-static"
                     if (targetPlatform.architecture.name == "x86") {
                         linker.args "-Wl,--kill-at"
                     }
+                } else if (targetPlatform.operatingSystem.linux) {
+                    linker.args "-ludev"
+                } else if (targetPlatform.operatingSystem.macOsX) {
+                    linker.args "-mmacosx-version-min=10.4"
+                    linker.args "-stdlib=libstdc++"
+                    linker.args "-framework", "IOKit", "-framework", "CoreFoundation"   
                 }
 
                 tasks.withType(CppCompile) {
@@ -163,7 +199,7 @@ libraries {
     }
 }
 
-task generateOzwVersionCpp() {
+task generateOzwVersionCpp {
     outputs.file("$project.buildDir/ozw-version/version.cpp")
     doLast {
         def f = file("$project.buildDir/ozw-version/version.cpp")

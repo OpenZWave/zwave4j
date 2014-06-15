@@ -4,7 +4,11 @@ ZWave4J - java wrapper for [OpenZWave](https://code.google.com/p/open-zwave) lib
 The goal is to provide to java the same API as OpenZWave has.
 Besides the wrapper ZWave4J has a simple executable `Main` class which demonstrates how to work with ZWave4J.
 
-ZWave4J supports *nix and Windows OS, x86 and amd64 architectures, GCC (MinGW for Windows) compiler.
+Supported platforms:
+
+* Windows: x86, amd64
+* Linux: x86, amd64, arm
+* OS X: x86, amd64
 
 ## Usage
 
@@ -32,9 +36,9 @@ To execute sample `Main` class, run:
 
 ### Build
 
-Run `gradlew jar` in console. It will compile native JNI binaries and java classes, assemble `jar` archive and put it into `build/libs` directory.
-Platforms supported by your host will be built.
-To include native libraries for other platforms into compiled `jar`, put `native_libs` directory from other ZWave4J `jar`s in the project root directory.
+Run `gradlew build` in console. It will compile native JNI binaries and java classes, assemble `jar` archive and put it into `build/libs` directory.
+Native binaries for platforms supported by your host will be built.
+To include native binaries for other platforms into compiled `jar`, put `native_libs` directory from other ZWave4J `jar`s in the project root directory.
 
 ### After build
 

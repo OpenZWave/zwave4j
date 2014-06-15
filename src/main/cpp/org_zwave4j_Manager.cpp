@@ -457,6 +457,7 @@ OpenZWave::Node::CommandClassData getOzwCommandClassData(JNIEnv * env, jobject c
     ozwCommandClassData.m_commandClassId = env->CallShortMethod(commandClassData, env->GetMethodID(clazz, "getCommandClassId", "()S"));
     ozwCommandClassData.m_sentCnt = env->CallLongMethod(commandClassData, env->GetMethodID(clazz, "getSentCnt", "()J"));
     ozwCommandClassData.m_receivedCnt = env->CallLongMethod(commandClassData, env->GetMethodID(clazz, "getReceivedCnt", "()J"));
+    return ozwCommandClassData;
 }
 
 struct sameObjectPairComparator
