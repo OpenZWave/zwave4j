@@ -26,7 +26,7 @@ package org.zwave4j;
  */
 public class CommandClassData {
 
-    private long commandClassId;
+    private short commandClassId;
     private long sentCnt;
     private long receivedCnt;
 
@@ -36,7 +36,7 @@ public class CommandClassData {
         this.receivedCnt = receivedCnt;
     }
 
-    public long getCommandClassId() {
+    public short getCommandClassId() {
         return commandClassId;
     }
 
