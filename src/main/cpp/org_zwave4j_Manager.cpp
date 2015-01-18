@@ -2901,7 +2901,7 @@ JNIEXPORT void JNICALL Java_org_zwave4j_Manager_getNodeStatistics
     for (std::list<OpenZWave::Node::CommandClassData>::iterator it = ozwNodeData.m_ccData.begin(); it != ozwNodeData.m_ccData.end(); it++) {
         env->CallVoidMethod(
             ccData,
-            env->GetMethodID(findClass(env, "java/util/List"), "set", "(Ljava/lang/Object;)V"),
+            env->GetMethodID(findClass(env, "java/util/List"), "add", "(Ljava/lang/Object;)Z"),
             getCommandClassData(env, &*it)
         );
     }
