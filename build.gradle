@@ -122,9 +122,6 @@ sources {
                     srcDir "$openZWaveDir/cpp/src/platform/unix"
                 }
 
-                //open-zwave version generated sources
-                srcDir "$project.buildDir/ozw-version"
-
                 //zwave4j sources
                 srcDir "src/main/cpp"
 
