@@ -110,10 +110,53 @@ jobject getNotificationType(JNIEnv * env, OpenZWave::Notification::NotificationT
 	case OpenZWave::Notification::Type_Notification:
 		name = "NOTIFICATION";
 		break;
+	case OpenZWave::Notification::Type_ControllerCommand:
+    	name = "CONTROLLER_COMMAND";
+    	break;
+    case OpenZWave::Notification::Type_DriverRemoved:
+        name = "DRIVER_REMOVED";
+        break;
+    default:
+        name = "NOT_SUPPORTED";
+        break;
 	}
 
 	jclass clazz = findClass(env, "org/zwave4j/NotificationType");
 	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, name, "Lorg/zwave4j/NotificationType;"));
+}
+
+jobject getNotificationCode(JNIEnv * env, OpenZWave::Notification::NotificationCode ozwNotificationCode)
+{
+	const char * name;
+	switch(ozwNotificationCode)
+	{
+	case OpenZWave::Notification::Code_MsgComplete:
+		name = "MSG_COMPLETE";
+		break;
+	case OpenZWave::Notification::Code_Timeout:
+		name = "TIMEOUT";
+		break;
+	case OpenZWave::Notification::Code_NoOperation:
+		name = "NO_OPERATION";
+		break;
+	case OpenZWave::Notification::Code_Awake:
+		name = "AWAKE";
+		break;
+	case OpenZWave::Notification::Code_Sleep:
+		name = "SLEEP";
+		break;
+	case OpenZWave::Notification::Code_Dead:
+		name = "DEAD";
+		break;
+	case OpenZWave::Notification::Code_Alive:
+		name = "ALIVE";
+		break;
+	default:
+        name = "NOT_SUPPORTED";
+        break;
+	}
+	jclass clazz = findClass(env, "org/zwave4j/NotificationCode");
+	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, name, "Lorg/zwave4j/NotificationCode;"));
 }
 
 jobject getValueType(JNIEnv * env, OpenZWave::ValueID::ValueType ozwValueType)
@@ -151,6 +194,9 @@ jobject getValueType(JNIEnv * env, OpenZWave::ValueID::ValueType ozwValueType)
 	case OpenZWave::ValueID::ValueType_Raw:
 		name = "RAW";
 		break;
+    default:
+        name = "NOT_SUPPORTED";
+        break;
 	}
 	jclass clazz = findClass(env, "org/zwave4j/ValueType");
 	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, name, "Lorg/zwave4j/ValueType;"));
@@ -176,6 +222,9 @@ jobject getValueGenre(JNIEnv * env, OpenZWave::ValueID::ValueGenre ozwValueGenre
 	case OpenZWave::ValueID::ValueGenre_Count:
 		name = "COUNT";
 		break;
+    default:
+        name = "NOT_SUPPORTED";
+        break;
 	}
 	jclass clazz = findClass(env, "org/zwave4j/ValueGenre");
 	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, name, "Lorg/zwave4j/ValueGenre;"));
@@ -195,6 +244,9 @@ jobject getControllerInterface(JNIEnv * env, OpenZWave::Driver::ControllerInterf
 	case OpenZWave::Driver::ControllerInterface_Hid:
 		name = "HID";
 		break;
+    default:
+        name = "NOT_SUPPORTED";
+        break;
 	}
 	jclass clazz = findClass(env, "org/zwave4j/ControllerInterface");
 	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, name, "Lorg/zwave4j/ControllerInterface;"));
@@ -238,7 +290,9 @@ jobject getControllerState(JNIEnv * env, OpenZWave::Driver::ControllerState ozwC
     case OpenZWave::Driver::ControllerState_NodeFailed:
 		name = "NODE_FAILED";
 		break;
-		
+    default:
+        name = "NOT_SUPPORTED";
+        break;
 	}
 	jclass clazz = findClass(env, "org/zwave4j/ControllerState");
 	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, name, "Lorg/zwave4j/ControllerState;"));
@@ -287,7 +341,10 @@ jobject getControllerError(JNIEnv * env, OpenZWave::Driver::ControllerError ozwC
 		break;
     case OpenZWave::Driver::ControllerError_Overflow:
 		name = "OVERFLOW";
-		break;				
+		break;
+    default:
+        name = "NOT_SUPPORTED";
+        break;
 	}
 	jclass clazz = findClass(env, "org/zwave4j/ControllerError");
 	return env->GetStaticObjectField(clazz, env->GetStaticFieldID(clazz, name, "Lorg/zwave4j/ControllerError;"));

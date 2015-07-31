@@ -29,5 +29,6 @@ public enum ValueGenre {
     USER,
     CONFIG,
     SYSTEM,
-    COUNT
+    COUNT,
+    NOT_SUPPORTED
 }
