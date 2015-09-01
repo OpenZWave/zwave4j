@@ -30,7 +30,7 @@ public class CommandClassData {
     private long sentCnt;
     private long receivedCnt;
 
-    public CommandClassData(long commandClassId, long sentCnt, long receivedCnt) {
+    public CommandClassData(short commandClassId, long sentCnt, long receivedCnt) {
         this.commandClassId = commandClassId;
         this.sentCnt = sentCnt;
         this.receivedCnt = receivedCnt;

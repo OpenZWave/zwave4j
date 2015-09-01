@@ -34,5 +34,6 @@ public enum ValueType {
     SHORT,
     STRING,
     BUTTON,
-    RAW
+    RAW,
+    NOT_SUPPORTED
 }

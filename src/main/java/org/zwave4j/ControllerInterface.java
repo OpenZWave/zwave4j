@@ -27,5 +27,6 @@ package org.zwave4j;
 public enum ControllerInterface {
     UNKNOWN,
     SERIAL,
-    HID
+    HID,
+    NOT_SUPPORTED
 }

@@ -37,5 +37,6 @@ public enum ControllerError {
     BUSY,
     FAILED,
     DISABLED,
-    OVERFLOW
+    OVERFLOW,
+    NOT_SUPPORTED
 }

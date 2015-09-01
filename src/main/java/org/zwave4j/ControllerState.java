@@ -35,5 +35,6 @@ public enum ControllerState {
     COMPLETED,
     FAILED,
     NODE_OK,
-    NODE_FAILED
+    NODE_FAILED,
+    NOT_SUPPORTED
 }
