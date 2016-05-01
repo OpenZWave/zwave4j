@@ -24,7 +24,7 @@ ext {
 }
 
 group = "com.github.zgmnkv"
-version = "0.3" + (release ? "" : "-SNAPSHOT")
+version = "1.0" + (release ? "" : "-SNAPSHOT")
 mainClassName = "org.zwave4j.Main"
 
 repositories {
