@@ -28,6 +28,8 @@ ext {
 
 group = "com.github.zgmnkv"
 version = "1.0" + (release ? "" : "-SNAPSHOT")
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
 mainClassName = "org.zwave4j.Main"
 
 repositories {
@@ -308,4 +310,21 @@ uploadArchives {
 
 task wrapper(type: Wrapper) {
     gradleVersion = "2.13"
+}
+
+idea {
+    project {
+        vcs = "Git"
+    }
+
+    workspace.iws.withXml { xmlFile ->
+        def propertiesComponent = xmlFile.asNode().component.find { it.@name == "PropertiesComponent" }
+        if (!propertiesComponent) {
+            propertiesComponent = xmlFile.asNode().appendNode "component", [name: "PropertiesComponent"]
+        }
+
+        if (!propertiesComponent.property.find { it.@name == "show.inlinked.gradle.project.popup" }) {
+            propertiesComponent.appendNode "property", [name: "show.inlinked.gradle.project.popup", value: "false"]
+        }
+    }
 }
