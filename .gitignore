@@ -5,6 +5,7 @@
 /gradle.properties
 /OZW_Log.txt
 /zwscene.xml
+/zwcfg_*.xml
 *.iml
 *.ipr
 *.iws

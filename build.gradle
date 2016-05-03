@@ -7,20 +7,21 @@ apply plugin: "c"
 apply plugin: "signing"
 
 ext {
+    openZWaveDir = project.hasProperty("openZWaveDir") ? project.openZWaveDir: "../open-zwave"
+
+    openZWaveConfigDir = project.hasProperty("openZWaveConfigDir") ? project.openZWaveConfigDir: "../open-zwave/config"
+    zWaveControllerPort = project.hasProperty("zWaveControllerPort") ? project.zWaveControllerPort: "/dev/ttyUSB0"
+
     release = project.hasProperty("release") ? Boolean.valueOf(project.release) : false
     signEnabled = project.hasProperty("signEnabled") ? Boolean.valueOf(project.signEnabled) : false
     sonatypeUsername = project.hasProperty("sonatypeUsername") ? project.sonatypeUsername : ""
     sonatypePassword = project.hasProperty("sonatypePassword") ? project.sonatypePassword : ""
 
-    openZWaveDir = project.openZWaveDir
-    openZWaveConfigDir = project.openZWaveConfigDir
-    zWaveControllerPort = project.zWaveControllerPort
-
     nativeClasses = ["org.zwave4j.Manager", "org.zwave4j.Options"]
 
     additionalNativeLibsDir = "native_libs"
 
-    classesNativeLibsDir = "native_libs"
+    jarNativeLibsDir = "native_libs"
 
     generatedNativeHeadersDir = "$project.buildDir/native-headers"
 }
@@ -47,7 +48,7 @@ task generateNativeHeaders(type: Exec, dependsOn: compileJava) {
 model {
     repositories {
         libs(PrebuiltLibraries) {
-            jvm {
+            jni {
                 def jvm = org.gradle.internal.jvm.Jvm.current()
 
                 headers.srcDir "${jvm.javaHome}/include"
@@ -177,11 +178,11 @@ model {
             }
         }
         main(NativeLibrarySpec) {
-            baseName = "zwave4j"
+            baseName = project.name
 
             sources {
                 cpp {
-                    lib library: "jvm", linkage: "api"
+                    lib library: "jni", linkage: "api"
                     lib library: "openZWave", linkage: "static"
                     lib library: "tinyXml", linkage: "static"
                     lib library: "hidApi", linkage: "static"
@@ -216,12 +217,12 @@ model {
                 dependsOn binary.tasks.build
 
                 from binary.sharedLibraryLinkFile, {
-                    into "$classesNativeLibsDir/$binary.targetPlatform.operatingSystem.name/$binary.targetPlatform.architecture.name"
+                    into "$jarNativeLibsDir/$binary.targetPlatform.operatingSystem.name/$binary.targetPlatform.architecture.name"
                 }
             }
 
             from additionalNativeLibsDir, {
-                into classesNativeLibsDir
+                into jarNativeLibsDir
             }
         }
     }
