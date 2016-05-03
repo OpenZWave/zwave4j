@@ -13,7 +13,7 @@ public class NativeLibraryLoader {
     public static final String SOLARIS_DIRECTORY_NAME = "solaris";
     public static final String OSX_DIRECTORY_NAME = "osx";
     public static final String X86_DIRECTORY_NAME = "x86";
-    public static final String AMD64_DIRECTORY_NAME = "amd64";
+    public static final String AMD64_DIRECTORY_NAME = "x86-64";
     public static final String ARM_DIRECTORY_NAME = "arm";
 
     private static final String TEMP_FILE_PREFIX = "native-lib-";

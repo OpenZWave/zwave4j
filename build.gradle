@@ -21,6 +21,8 @@ ext {
     additionalNativeLibsDir = "native_libs"
 
     classesNativeLibsDir = "native_libs"
+
+    generatedNativeHeadersDir = "$project.buildDir/native-headers"
 }
 
 group = "com.github.zgmnkv"
@@ -32,228 +34,200 @@ repositories {
     mavenCentral()
 }
 
-model {
-    platforms {
-        windows_x86 {
-            architecture "x86"
-            operatingSystem "windows"
-        }
-        windows_amd64 {
-            architecture "amd64"
-            operatingSystem "windows"
-        }
-        linux_x86 {
-            architecture "x86"
-            operatingSystem "linux"
-        }
-        linux_amd64 {
-            architecture "amd64"
-            operatingSystem "linux"
-        }
-        linux_arm {
-            architecture "arm"
-            operatingSystem "linux"
-        }
-        osx_x86 {
-            architecture "x86"
-            operatingSystem "osx"
-        }
-        osx_amd64 {
-            architecture "amd64"
-            operatingSystem "osx"
-        }
-    }
-    toolChains {
-        gcc(Gcc) {
-            //gradle 1.12 for some reason does not support windows amd64 cross compile
-            addPlatformConfiguration(new TargetPlatformConfiguration() {
-                boolean supportsPlatform(Platform platform) {
-                    platform.operatingSystem.current && platform.operatingSystem.name == "windows" &&
-                            platform.architecture.name == "amd64"
-                }
-                List<String> getCppCompilerArgs() { ["-m64"] }
-                List<String> getCCompilerArgs() { ["-m64"] }
-                List<String> getObjectiveCCompilerArgs() { ["-m64"] }
-                List<String> getObjectiveCppCompilerArgs() { ["-m64"] }
-                List<String> getAssemblerArgs() { ["--64"] }
-                List<String> getLinkerArgs() { ["-m64"] }
-                List<String> getStaticLibraryArchiverArgs() { [] }
-            })
-            //linux arm target support for linux arm host, no compiler/linker options
-            addPlatformConfiguration(new TargetPlatformConfiguration() {
-                boolean supportsPlatform(Platform platform) {
-                    platform.operatingSystem.current && platform.operatingSystem.name == "linux" &&
-                            System.properties["os.arch"] == "arm" && platform.architecture.name == "arm"
-                }
-                List<String> getCppCompilerArgs() { [] }
-                List<String> getCCompilerArgs() { [] }
-                List<String> getObjectiveCCompilerArgs() { [] }
-                List<String> getObjectiveCppCompilerArgs() { [] }
-                List<String> getAssemblerArgs() { [] }
-                List<String> getLinkerArgs() { [] }
-                List<String> getStaticLibraryArchiverArgs() { [] }
-            })
-        }
-        clang(Clang)
-    }
-}
-
-sources {
-    main {
-        cpp {
-            source {
-                //tinyxml sources
-                srcDir "$openZWaveDir/cpp/tinyxml"
-
-                //hidapi sources
-                if (org.gradle.internal.os.OperatingSystem.current().windows) {
-                    srcDir "$openZWaveDir/cpp/hidapi/windows"
-                }
-
-                //open-zwave sources
-                srcDir "$openZWaveDir/cpp/src"
-                srcDir "$openZWaveDir/cpp/src/command_classes"
-                srcDir "$openZWaveDir/cpp/src/value_classes"
-                srcDir "$openZWaveDir/cpp/src/platform"
-
-                if (org.gradle.internal.os.OperatingSystem.current().windows) {
-                    srcDir "$openZWaveDir/cpp/src/platform/windows"
-                } else {
-                    srcDir "$openZWaveDir/cpp/src/platform/unix"
-                }
-
-                //zwave4j sources
-                srcDir "src/main/cpp"
-
-                include "*.cpp"
-            }
-        }
-        c {
-            source {
-                if (org.gradle.internal.os.OperatingSystem.current().linux) {
-                    srcDir "$openZWaveDir/cpp/hidapi/linux"
-                } else if (org.gradle.internal.os.OperatingSystem.current().macOsX) {
-                    srcDir "$openZWaveDir/cpp/hidapi/mac"
-                }
-
-                srcDir "$openZWaveDir/cpp/src/aes"
-                include "*.c"
-            }
-        }
-    }
-}
-
-libraries {
-    main {
-        baseName = "zwave4j"
-        binaries.all {
-            if (toolChain in Gcc || toolChain in Clang) {
-                //platform-specific compiler args
-                if (targetPlatform.operatingSystem.windows) {
-                    cppCompiler.args "-DMINGW"
-                } else if (targetPlatform.operatingSystem.macOsX) {
-                    cppCompiler.args "-DDARWIN"
-                    cppCompiler.args "-stdlib=libstdc++"
-                }
-
-                //tinyxml headers
-                cppCompiler.args "-I", "$openZWaveDir/cpp/tinyxml"
-
-                //hidapi headers
-                cppCompiler.args "-I", "$openZWaveDir/cpp/hidapi/hidapi"
-                cCompiler.args "-I", "$openZWaveDir/cpp/hidapi/hidapi"
-
-                //open-zwave headers
-                cppCompiler.args "-I", "$openZWaveDir/cpp/src"
-                cppCompiler.args "-I", "$openZWaveDir/cpp/src/command_classes"
-                cppCompiler.args "-I", "$openZWaveDir/cpp/src/value_classes"
-                cppCompiler.args "-I", "$openZWaveDir/cpp/src/platform"
-
-                if (targetPlatform.operatingSystem.windows) {
-                    cppCompiler.args "-I", "$openZWaveDir/cpp/src/platform/windows"
-                } else {
-                    cppCompiler.args "-I", "$openZWaveDir/cpp/src/platform/unix"
-                }
-
-                //java headers
-                cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
-
-                if (targetPlatform.operatingSystem.windows) {
-                    cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
-                } else if (targetPlatform.operatingSystem.linux) {
-                    cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
-                } else if (targetPlatform.operatingSystem.macOsX) {
-                    cppCompiler.args "-I", "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
-                }
-
-                //zwave4j generated headers
-                cppCompiler.args "-I", "$project.buildDir/native-headers"
-
-                //platform-specific linker args
-                if (targetPlatform.operatingSystem.windows) {
-                    linker.args "-static" //static link mingw dlls (libstdc++, libgcc, libwinpthread, etc)
-                    linker.args "-lsetupapi"
-                    if (targetPlatform.architecture.name == "x86") {
-                        linker.args "-Wl,--kill-at"
-                    }
-                } else if (targetPlatform.operatingSystem.macOsX) {
-                    linker.args "-mmacosx-version-min=10.4"
-                    linker.args "-stdlib=libstdc++"
-                    linker.args "-framework", "IOKit", "-framework", "CoreFoundation"   
-                }
-
-                tasks.withType(CppCompile) {
-                    dependsOn generateNativeHeaders, generateOzwVersionCpp
-                }
-            }
-        }
-    }
-}
-
-task generateOzwVersionCpp {
-    outputs.file("$project.buildDir/ozw-version/version.cpp")
-    doLast {
-        def f = file("$project.buildDir/ozw-version/version.cpp")
-        f.parentFile.mkdirs()
-        f.text = "" +
-                "unsigned short ozw_vers_minor = 1;\n" +
-                "unsigned short ozw_vers_major = 0;\n" +
-                "unsigned short ozw_vers_revision = 0;\n" +
-                "char ozw_vers[] = \"OpenZWave version 1.0.0\";\n"
-    }
-}
-
-task generateNativeHeaders(type: Exec, dependsOn: classes) {
+task generateNativeHeaders(type: Exec, dependsOn: compileJava) {
     inputs.dir(sourceSets.main.output.classesDir)
-    outputs.dir("$project.buildDir/native-headers")
+    outputs.dir(generatedNativeHeadersDir)
 
     commandLine "javah"
-    args "-d", "$project.buildDir/native-headers"
+    args "-d", generatedNativeHeadersDir
     args "-classpath", sourceSets.main.runtimeClasspath.asPath
     args nativeClasses
 }
 
-task copyNativeLibs(type: Copy) {
-    into "$sourceSets.main.output.classesDir/$classesNativeLibsDir"
-    from additionalNativeLibsDir
-}
+model {
+    repositories {
+        libs(PrebuiltLibraries) {
+            jvm {
+                def jvm = org.gradle.internal.jvm.Jvm.current()
 
-libraries.main.binaries.withType(SharedLibraryBinary) {
-    afterEvaluate {
-        //for "arm" host gradle treats "amd64" and "x86" as buildable, adding additional conditions
-        if (buildable && (System.properties["os.arch"] != "arm" || targetPlatform.architecture.name == "arm")) {
-            copyNativeLibs.dependsOn tasks.builder
-            copyNativeLibs.from tasks.builder.outputFile, {
-                into "$targetPlatform.operatingSystem.name/$targetPlatform.architecture.name"
+                headers.srcDir "${jvm.javaHome}/include"
+
+                //TODO (AZ) cross compile support
+                def os = org.gradle.internal.os.OperatingSystem.current()
+                if (os.linux) {
+                    headers.srcDir "${jvm.javaHome}/include/linux"
+                } else if (os.macOsX) {
+                    headers.srcDir "${jvm.javaHome}/include/darwin"
+                } else if (os.windows) {
+                    headers.srcDir "${jvm.javaHome}/include/win32"
+                }
+            }
+        }
+    }
+
+    components {
+        tinyXml(NativeLibrarySpec) {
+            sources {
+                cpp {
+                    source {
+                        srcDir "$openZWaveDir/cpp/tinyxml"
+                        include "*.cpp"
+                    }
+
+                    exportedHeaders {
+                        srcDir "$openZWaveDir/cpp/tinyxml"
+                        include "*.h"
+                    }
+                }
+            }
+        }
+        hidApi(NativeLibrarySpec) {
+            sources {
+                c {
+                    exportedHeaders {
+                        srcDir "$openZWaveDir/cpp/hidapi/hidapi"
+                        include "*.h"
+                    }
+                }
+            }
+
+            binaries.all {
+                sources {
+                    c(CSourceSet) {
+                        lib library: "hidApi", linkage: "api"
+
+                        source {
+                            if (targetPlatform.operatingSystem.linux) {
+                                srcDir "$openZWaveDir/cpp/hidapi/linux"
+                            } else if (targetPlatform.operatingSystem.macOsX) {
+                                srcDir "$openZWaveDir/cpp/hidapi/mac"
+                            } else if (targetPlatform.operatingSystem.windows) {
+                                srcDir "$openZWaveDir/cpp/hidapi/windows"
+                            }
+                            include "*.c"
+                        }
+                    }
+                }
+            }
+        }
+        aes(NativeLibrarySpec) {
+            sources {
+                c {
+                    source {
+                        srcDir "$openZWaveDir/cpp/src/aes"
+                        include "*.c"
+                    }
+
+                    exportedHeaders {
+                        srcDir "$openZWaveDir/cpp/src/aes"
+                        include "*.h"
+                    }
+                }
+            }
+        }
+        openZWave(NativeLibrarySpec) {
+            sources {
+                cpp {
+                    lib library: "tinyXml", linkage: "static"
+                    lib library: "hidApi", linkage: "static"
+                    lib library: "aes", linkage: "static"
+
+                    source {
+                        srcDir "$openZWaveDir/cpp/src"
+                        srcDir "$openZWaveDir/cpp/src/command_classes"
+                        srcDir "$openZWaveDir/cpp/src/value_classes"
+                        srcDir "$openZWaveDir/cpp/src/platform"
+                        include "*.cpp"
+                    }
+
+                    exportedHeaders {
+                        srcDir "$openZWaveDir/cpp/src"
+                        srcDir "$openZWaveDir/cpp/src/command_classes"
+                        srcDir "$openZWaveDir/cpp/src/value_classes"
+                        srcDir "$openZWaveDir/cpp/src/platform"
+                        include "*.h"
+                    }
+                }
+            }
+
+            binaries.all {
+                sources {
+                    cpp(CppSourceSet) {
+                        lib library: "openZWave", linkage: "api"
+
+                        source {
+                            if (targetPlatform.operatingSystem.linux || targetPlatform.operatingSystem.macOsX) {
+                                srcDir "$openZWaveDir/cpp/src/platform/unix"
+                            } else if (targetPlatform.operatingSystem.windows) {
+                                srcDir "$openZWaveDir/cpp/src/platform/windows"
+                            }
+                            include "*.cpp"
+                        }
+
+                        exportedHeaders {
+                            if (targetPlatform.operatingSystem.linux || targetPlatform.operatingSystem.macOsX) {
+                                srcDir "$openZWaveDir/cpp/src/platform/unix"
+                            } else if (targetPlatform.operatingSystem.windows) {
+                                srcDir "$openZWaveDir/cpp/src/platform/windows"
+                            }
+                            include "*.h"
+                        }
+                    }
+                }
+            }
+        }
+        main(NativeLibrarySpec) {
+            baseName = "zwave4j"
+
+            sources {
+                cpp {
+                    lib library: "jvm", linkage: "api"
+                    lib library: "openZWave", linkage: "static"
+                    lib library: "tinyXml", linkage: "static"
+                    lib library: "hidApi", linkage: "static"
+                    lib library: "aes", linkage: "static"
+
+                    exportedHeaders {
+                        srcDir generatedNativeHeadersDir
+                    }
+                }
+            }
+
+            binaries.all {
+                tasks.withType(CppCompile) {
+                    dependsOn generateNativeHeaders
+                }
+            }
+        }
+    }
+
+    binaries {
+        all {
+            if (toolChain in Gcc) {
+                cppCompiler.args "-fPIC"
+                cCompiler.args "-fPIC"
+            }
+        }
+    }
+
+    tasks {
+        processResources {
+            $.components.main.binaries.values().findAll { it instanceof SharedLibraryBinarySpec } .each { binary ->
+                dependsOn binary.tasks.build
+
+                from binary.sharedLibraryLinkFile, {
+                    into "$classesNativeLibsDir/$binary.targetPlatform.operatingSystem.name/$binary.targetPlatform.architecture.name"
+                }
+            }
+
+            from additionalNativeLibsDir, {
+                into classesNativeLibsDir
             }
         }
     }
 }
 
-jar.dependsOn copyNativeLibs
-
 run {
-    dependsOn copyNativeLibs
     standardInput = System.in
     jvmArgs([
             "-Xdebug",
@@ -278,10 +252,6 @@ task javadocJar(type: Jar) {
 task configZip(type: Zip) {
     from openZWaveConfigDir
     classifier "ozw_config"
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = "1.12"
 }
 
 artifacts {
@@ -333,4 +303,8 @@ uploadArchives {
             }
         }
     }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.13"
 }

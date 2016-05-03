@@ -1,6 +1,10 @@
-.idea
-.gradle
+/.idea/
+/.gradle/
+/build/
+/native_libs/
+/gradle.properties
+/OZW_Log.txt
+/zwscene.xml
 *.iml
 *.ipr
-gradle.properties
-build
+*.iws
