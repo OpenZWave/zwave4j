@@ -41,13 +41,9 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM * vm, void * pvt)
          return JNI_ERR; /* JNI version not supported */
     }
 
-    jclass threadClass = env->FindClass("java/lang/Thread");
     classLoader = env->NewGlobalRef(env->CallObjectMethod(
-            env->CallStaticObjectMethod(
-                    threadClass,
-                    env->GetStaticMethodID(threadClass, "currentThread", "()Ljava/lang/Thread;")
-            ),
-            env->GetMethodID(threadClass, "getContextClassLoader", "()Ljava/lang/ClassLoader;")
+            env->FindClass("org/zwave4j/ZWave4j"),
+            env->GetMethodID(env->FindClass("java/lang/Class"), "getClassLoader", "()Ljava/lang/ClassLoader;")
     ));
 
 	return JNI_VERSION_1_6;
