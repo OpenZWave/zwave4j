@@ -47,6 +47,15 @@ task generateNativeHeaders(type: Exec, dependsOn: compileJava) {
     args nativeClasses
 }
 
+task generateOzwVersion(type: Exec) {
+    inputs.dir openZWaveDir
+    outputs.file("$openZWaveDir/cpp/src/vers.cpp")
+
+    workingDir "$openZWaveDir/cpp/build"
+    commandLine "make"
+    args file("$openZWaveDir/cpp/src/vers.cpp").canonicalPath
+}
+
 model {
     repositories {
         libs(PrebuiltLibraries) {
@@ -176,6 +185,10 @@ model {
                             include "*.h"
                         }
                     }
+                }
+
+                tasks.withType(CppCompile) {
+                    dependsOn generateOzwVersion
                 }
             }
         }
