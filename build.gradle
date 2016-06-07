@@ -77,8 +77,47 @@ model {
         }
     }
 
+    platforms {
+        "linux_x86" {
+            operatingSystem "linux"
+            architecture "x86"
+        }
+        "linux_x86-64" {
+            operatingSystem "linux"
+            architecture "x86-64"
+        }
+        "linux_arm" {
+            operatingSystem "linux"
+            architecture "arm"
+        }
+        "osx_x86" {
+            operatingSystem "osx"
+            architecture "x86"
+        }
+        "osx_x86-64" {
+            operatingSystem "osx"
+            architecture "x86-64"
+        }
+        "windows_x86" {
+            operatingSystem "windows"
+            architecture "x86"
+        }
+        "windows_x86-64" {
+            operatingSystem "windows"
+            architecture "x86-64"
+        }
+    }
+
     components {
         tinyXml(NativeLibrarySpec) {
+            targetPlatform "linux_x86"
+            targetPlatform "linux_x86-64"
+            targetPlatform "linux_arm"
+            targetPlatform "osx_x86"
+            targetPlatform "osx_x86-64"
+            targetPlatform "windows_x86"
+            targetPlatform "windows_x86-64"
+
             sources {
                 cpp {
                     source {
@@ -94,6 +133,14 @@ model {
             }
         }
         hidApi(NativeLibrarySpec) {
+            targetPlatform "linux_x86"
+            targetPlatform "linux_x86-64"
+            targetPlatform "linux_arm"
+            targetPlatform "osx_x86"
+            targetPlatform "osx_x86-64"
+            targetPlatform "windows_x86"
+            targetPlatform "windows_x86-64"
+
             sources {
                 c {
                     exportedHeaders {
@@ -123,6 +170,14 @@ model {
             }
         }
         aes(NativeLibrarySpec) {
+            targetPlatform "linux_x86"
+            targetPlatform "linux_x86-64"
+            targetPlatform "linux_arm"
+            targetPlatform "osx_x86"
+            targetPlatform "osx_x86-64"
+            targetPlatform "windows_x86"
+            targetPlatform "windows_x86-64"
+
             sources {
                 c {
                     source {
@@ -138,6 +193,14 @@ model {
             }
         }
         openZWave(NativeLibrarySpec) {
+            targetPlatform "linux_x86"
+            targetPlatform "linux_x86-64"
+            targetPlatform "linux_arm"
+            targetPlatform "osx_x86"
+            targetPlatform "osx_x86-64"
+            targetPlatform "windows_x86"
+            targetPlatform "windows_x86-64"
+
             sources {
                 cpp {
                     lib library: "tinyXml", linkage: "static"
@@ -193,6 +256,14 @@ model {
             }
         }
         main(NativeLibrarySpec) {
+            targetPlatform "linux_x86"
+            targetPlatform "linux_x86-64"
+            targetPlatform "linux_arm"
+            targetPlatform "osx_x86"
+            targetPlatform "osx_x86-64"
+            targetPlatform "windows_x86"
+            targetPlatform "windows_x86-64"
+
             baseName = project.name
 
             sources {
@@ -228,7 +299,7 @@ model {
 
     tasks {
         processResources {
-            $.components.main.binaries.values().findAll { it instanceof SharedLibraryBinarySpec } .each { binary ->
+            $.components.main.binaries.values().findAll { it instanceof SharedLibraryBinarySpec && it.buildable } .each { binary ->
                 dependsOn binary.tasks.build
 
                 from binary.sharedLibraryLinkFile, {
