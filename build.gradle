@@ -108,6 +108,11 @@ model {
         }
     }
 
+    toolChains {
+        gcc(Gcc) {
+        }
+    }
+
     components {
         tinyXml(NativeLibrarySpec) {
             targetPlatform "linux_x86"
@@ -299,7 +304,7 @@ model {
 
     tasks {
         processResources {
-            $.components.main.binaries.values().findAll { it instanceof SharedLibraryBinarySpec && it.buildable } .each { binary ->
+            $.components.main.binaries.findAll { it instanceof SharedLibraryBinarySpec && it.buildable } .each { binary ->
                 dependsOn binary.tasks.build
 
                 from binary.sharedLibraryLinkFile, {
