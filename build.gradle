@@ -285,16 +285,24 @@ model {
                 }
             }
 
-            binaries.all {
-                tasks.withType(CppCompile) {
-                    dependsOn generateNativeHeaders
+            binaries {
+                all {
+                    tasks.withType(CppCompile) {
+                        dependsOn generateNativeHeaders
+                    }
+                }
+
+                withType(SharedLibraryBinarySpec) {
+                    if (toolChain in Gcc) {
+                        linker.args "-static-libgcc", "-static-libstdc++"
+                    }
                 }
             }
         }
     }
 
     binaries {
-        all {
+        withType(StaticLibraryBinarySpec) {
             if (toolChain in Gcc) {
                 cppCompiler.args "-fPIC"
                 cCompiler.args "-fPIC"
