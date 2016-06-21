@@ -153,6 +153,12 @@ model {
                         include "*.h"
                     }
                 }
+                cpp {
+                    exportedHeaders {
+                        srcDir "$openZWaveDir/cpp/hidapi/hidapi"
+                        include "*.h"
+                    }
+                }
             }
 
             binaries.all {
@@ -165,10 +171,18 @@ model {
                                 srcDir "$openZWaveDir/cpp/hidapi/linux"
                             } else if (targetPlatform.operatingSystem.macOsX) {
                                 srcDir "$openZWaveDir/cpp/hidapi/mac"
-                            } else if (targetPlatform.operatingSystem.windows) {
-                                srcDir "$openZWaveDir/cpp/hidapi/windows"
                             }
                             include "*.c"
+                        }
+                    }
+                    cpp(CppSourceSet) {
+                        lib library: "hidApi", linkage: "api"
+
+                        source {
+                            if (targetPlatform.operatingSystem.windows) {
+                                srcDir "$openZWaveDir/cpp/hidapi/windows"
+                            }
+                            include "*.cpp"
                         }
                     }
                 }
@@ -306,6 +320,15 @@ model {
             if (toolChain in Gcc) {
                 cppCompiler.args "-fPIC"
                 cCompiler.args "-fPIC"
+            }
+        }
+        all {
+            if (toolChain in Gcc) {
+                if (targetPlatform.operatingSystem.windows) {
+                    cppCompiler.define "MINGW"
+                } else if (targetPlatform.operatingSystem.macOsX) {
+                    cppCompiler.define "DARWIN"
+                }
             }
         }
     }
