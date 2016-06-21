@@ -51,9 +51,9 @@ task generateOzwVersion(type: Exec) {
     inputs.dir openZWaveDir
     outputs.file("$openZWaveDir/cpp/src/vers.cpp")
 
-    workingDir "$openZWaveDir/cpp/build"
+    workingDir openZWaveDir
     commandLine "make"
-    args file("$openZWaveDir/cpp/src/vers.cpp").canonicalPath
+    args "cpp/src/vers.cpp"
 }
 
 model {
