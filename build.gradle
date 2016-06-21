@@ -326,6 +326,7 @@ model {
             if (toolChain in Gcc) {
                 if (targetPlatform.operatingSystem.windows) {
                     cppCompiler.define "MINGW"
+                    linker.args "-lsetupapi"
                 } else if (targetPlatform.operatingSystem.macOsX) {
                     cppCompiler.define "DARWIN"
                 }
