@@ -326,9 +326,14 @@ model {
             if (toolChain in Gcc) {
                 if (targetPlatform.operatingSystem.windows) {
                     cppCompiler.define "MINGW"
-                    linker.args "-lsetupapi"
+                    linker.args "-static", "-lsetupapi"
+                    if (targetPlatform.architecture.name == "x86") {
+                        linker.args "-Wl,--kill-at"
+                    }
                 } else if (targetPlatform.operatingSystem.macOsX) {
                     cppCompiler.define "DARWIN"
+                    cppCompiler.args "-stdlib=libstdc++"
+                    linker.args "-mmacosx-version-min=10.4", "-stdlib=libstdc++", "-framework", "IOKit", "-framework", "CoreFoundation"
                 }
             }
         }
