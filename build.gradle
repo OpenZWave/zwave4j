@@ -111,6 +111,8 @@ model {
     toolChains {
         gcc(Gcc) {
         }
+        clang(Clang) {
+        }
     }
 
     components {
