@@ -24,6 +24,24 @@ ext {
     jarNativeLibsDir = "native_libs"
 
     generatedNativeHeadersDir = "$project.buildDir/native-headers"
+
+    def osName = System.getProperty("os.name")
+    if (osName.equals("Linux")) {
+        currentOs = "linux"
+    } else if (osName.startsWith("Windows")) {
+        currentOs = "windows"
+    } else if (osName.endsWith("OS X")) {
+        currentOs = "osx"
+    }
+
+    def architecture = System.getProperty("os.arch")
+    if (architecture.endsWith("86")) {
+        currentArch = "x86"
+    } else if (architecture.equals("arm")) {
+        currentArch = "arm"
+    } else if (architecture.equals("amd64") || architecture.equals("x86_64")) {
+        currentArch = "x86-64"
+    }
 }
 
 group = "com.github.zgmnkv"
@@ -65,12 +83,11 @@ model {
                 headers.srcDir "${jvm.javaHome}/include"
 
                 //TODO (AZ) cross compile support
-                def os = org.gradle.internal.os.OperatingSystem.current()
-                if (os.linux) {
+                if (currentOs == "linux") {
                     headers.srcDir "${jvm.javaHome}/include/linux"
-                } else if (os.macOsX) {
+                } else if (currentOs == "osx") {
                     headers.srcDir "${jvm.javaHome}/include/darwin"
-                } else if (os.windows) {
+                } else if (currentOs == "windows") {
                     headers.srcDir "${jvm.javaHome}/include/win32"
                 }
             }
@@ -110,6 +127,10 @@ model {
 
     toolChains {
         gcc(Gcc) {
+            if (currentOs == "linux" && currentArch == "arm") {
+                // gradle does not detect this automatically for some reason
+                target("linux_arm")
+            }
         }
         clang(Clang) {
         }
