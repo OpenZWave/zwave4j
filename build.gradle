@@ -377,7 +377,18 @@ model {
 
     tasks {
         processResources {
-            $.components.main.binaries.findAll { it instanceof SharedLibraryBinarySpec && it.buildable } .each { binary ->
+            $.components.main.binaries.findAll {
+                it instanceof SharedLibraryBinarySpec &&
+                (
+                        it.buildable ||
+                        (
+                                // gradle does not detect this automatically for some reason
+                                currentOs == "linux" && currentArch == "arm" &&
+                                binary.targetPlatform.operatingSystem.linux &&
+                                binary.targetPlatform.architecture.name == "arm"
+                        )
+                )
+            } .each { binary ->
                 dependsOn binary.tasks.build
 
                 from binary.sharedLibraryLinkFile, {
